@@ -10,7 +10,7 @@ import os
 import sys
 import pandas as pd
 
-INPUT_PATH = "../../datas/downloaded/cleaned/valeursfoncieres-paris-2020-2025.1-normal.csv"
+INPUT_PATH = "../../datas/downloaded/cleaned/valeursfoncieres-paris-2020-2025.1-exploitables.csv"
 OUTPUT_NORMAL = INPUT_PATH.replace('.csv', '-final.csv')
 OUTPUT_ABERRANTES = INPUT_PATH.replace('-normal.csv', '-aberrantes-final.csv')
 

@@ -66,14 +66,14 @@ def iqr_method(df):
     print("="*70)
 
     Q1 = df['Prix_m2'].quantile(0.25)
-    Q3 = df['Prix_m2'].quantile(0.75)
+    Q3 = df['Prix_m2'].quantile(0.95)
     IQR = Q3 - Q1
 
     seuil_bas = Q1 - 1.5 * IQR
     seuil_haut = Q3 + 1.5 * IQR
 
     print(f"Q1 (25e percentile): {Q1:>10,.0f}€/m²")
-    print(f"Q3 (75e percentile): {Q3:>10,.0f}€/m²")
+    print(f"Q3 (95e percentile): {Q3:>10,.0f}€/m²")
     print(f"IQR: {IQR:>10,.0f}€/m²")
     print(f"\nSeuils d'aberrance:")
     print(f"  Bas: {seuil_bas:>10,.0f}€/m²")
