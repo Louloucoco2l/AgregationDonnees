@@ -22,9 +22,9 @@ fichiers = [
 ]
 
 # Fichiers de sortie
-fichier_tous = os.path.join(base_dir, "../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025.csv")
-fichier_exploitables = os.path.join(base_dir, "../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv")
-fichier_inexploitables = os.path.join(base_dir, "../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-inexploitables.csv")
+fichier_tous = os.path.join(base_dir, "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025.csv")
+fichier_exploitables = os.path.join(base_dir, "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv")
+fichier_inexploitables = os.path.join(base_dir, "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-inexploitables.csv")
 
 # Crée le répertoire s'il n'existe pas
 output_dir = os.path.dirname(fichier_tous)
