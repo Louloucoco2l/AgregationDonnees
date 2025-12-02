@@ -9,7 +9,7 @@ import os
 import sys
 import pandas as pd
 
-INPUT_PATH = "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv"
+INPUT_PATH = "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
 OUTPUT_DIR = "../../../datas/downloaded/analysis/"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
