@@ -1,5 +1,5 @@
 """
-    Script d'analyse détaillée DVF géocodées
+    Script d'analyse détaillée old_dataset géocodées
     Produit max de métriques : stats globales, spatiales, temporelles, par type
 
     Entrée: dvf_paris_2020-2025-exploitables.csv
@@ -9,8 +9,8 @@ import os
 import sys
 import pandas as pd
 
-INPUT_PATH = "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
-OUTPUT_DIR = "../../../datas/downloaded/analysis/"
+INPUT_PATH = "../../../datas/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
+OUTPUT_DIR = "../../../datas/DVF/analysis/"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 

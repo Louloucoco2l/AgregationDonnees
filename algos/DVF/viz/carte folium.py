@@ -1,67 +1,21 @@
 """
-    Génère une carte interactive Folium avec heatmap des arrondissements
-    - Choroplèthe avec contours réels des arrondissements
-    - Couleurs selon prix_m2
+    Génère une carte interactive Folium avec coloration réelle des arrondissements
+    - Utilise le vrai GeoJSON polygonal de Paris
+    - Choroplèthe basée sur prix moyen au m²
     - Tooltips interactifs
-    - Légende et contrôles
+    - Légende
 """
 
 import os
 import pandas as pd
 import folium
-from folium import plugins
 import json
-INPUT_PATH = "../../../datas/downloaded/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
-OUTPUT_FILE = "../../../plots/carte_paris_heatmap.html"
+
+INPUT_PATH = "../../../datas/DVF/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
+GEOJSON_PATH = "../../../datas/arrondissements.geojson"
+OUTPUT_FILE = "../../../plots/DVF/carte_paris_heatmap.1.html"
 
 os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-
-# GeoJSON des arrondissements de Paris (coordonnées approximatives)
-ARRONDISSEMENTS_GEOJSON = {
-    "type": "FeatureCollection",
-    "features": [
-        {"type": "Feature", "properties": {"arrondissement": 1},
-         "geometry": {"type": "Point", "coordinates": [2.3469, 48.8628]}},
-        {"type": "Feature", "properties": {"arrondissement": 2},
-         "geometry": {"type": "Point", "coordinates": [2.3522, 48.8637]}},
-        {"type": "Feature", "properties": {"arrondissement": 3},
-         "geometry": {"type": "Point", "coordinates": [2.3600, 48.8606]}},
-        {"type": "Feature", "properties": {"arrondissement": 4},
-         "geometry": {"type": "Point", "coordinates": [2.3554, 48.8556]}},
-        {"type": "Feature", "properties": {"arrondissement": 5},
-         "geometry": {"type": "Point", "coordinates": [2.3492, 48.8440]}},
-        {"type": "Feature", "properties": {"arrondissement": 6},
-         "geometry": {"type": "Point", "coordinates": [2.3323, 48.8500]}},
-        {"type": "Feature", "properties": {"arrondissement": 7},
-         "geometry": {"type": "Point", "coordinates": [2.3124, 48.8559]}},
-        {"type": "Feature", "properties": {"arrondissement": 8},
-         "geometry": {"type": "Point", "coordinates": [2.3121, 48.8741]}},
-        {"type": "Feature", "properties": {"arrondissement": 9},
-         "geometry": {"type": "Point", "coordinates": [2.3394, 48.8781]}},
-        {"type": "Feature", "properties": {"arrondissement": 10},
-         "geometry": {"type": "Point", "coordinates": [2.3605, 48.8749]}},
-        {"type": "Feature", "properties": {"arrondissement": 11},
-         "geometry": {"type": "Point", "coordinates": [2.3795, 48.8595]}},
-        {"type": "Feature", "properties": {"arrondissement": 12},
-         "geometry": {"type": "Point", "coordinates": [2.3929, 48.8429]}},
-        {"type": "Feature", "properties": {"arrondissement": 13},
-         "geometry": {"type": "Point", "coordinates": [2.3560, 48.8291]}},
-        {"type": "Feature", "properties": {"arrondissement": 14},
-         "geometry": {"type": "Point", "coordinates": [2.3254, 48.8311]}},
-        {"type": "Feature", "properties": {"arrondissement": 15},
-         "geometry": {"type": "Point", "coordinates": [2.2965, 48.8416]}},
-        {"type": "Feature", "properties": {"arrondissement": 16},
-         "geometry": {"type": "Point", "coordinates": [2.2759, 48.8581]}},
-        {"type": "Feature", "properties": {"arrondissement": 17},
-         "geometry": {"type": "Point", "coordinates": [2.3100, 48.8859]}},
-        {"type": "Feature", "properties": {"arrondissement": 18},
-         "geometry": {"type": "Point", "coordinates": [2.3438, 48.8900]}},
-        {"type": "Feature", "properties": {"arrondissement": 19},
-         "geometry": {"type": "Point", "coordinates": [2.3822, 48.8925]}},
-        {"type": "Feature", "properties": {"arrondissement": 20},
-         "geometry": {"type": "Point", "coordinates": [2.3986, 48.8642]}},
-    ]
-}
 
 
 def load_data(filepath):
@@ -72,26 +26,21 @@ def load_data(filepath):
     return df
 
 
-def create_color(prix, min_prix, max_prix):
-    """Génère couleur selon prix (vert->jaune->rouge)"""
-    if pd.isna(prix):
-        return "#888888"
+def load_geojson(filepath):
+    """Charge GeoJSON polygonal des arrondissements"""
+    print("Chargement GeoJSON arrondissements…")
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(f"GeoJSON introuvable : {filepath}")
 
-    normalized = (prix - min_prix) / (max_prix - min_prix) if max_prix > min_prix else 0.5
-    normalized = max(0, min(1, normalized))
-
-    if normalized < 0.33:
-        r, g, b = 0, int(255 * (normalized / 0.33)), 0
-    elif normalized < 0.66:
-        r, g, b = int(255 * ((normalized - 0.33) / 0.33)), 255, 0
-    else:
-        r, g, b = 255, int(255 * (1 - (normalized - 0.66) / 0.34)), 0
-
-    return "#{:02x}{:02x}{:02x}".format(int(r), int(g), int(b))
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    print("OK - GeoJSON chargé\n")
+    return data
 
 
-def create_map(df):
+def create_map(df, geojson):
     """Crée la carte Folium"""
+
     print("=" * 70)
     print("Creation carte Folium")
     print("=" * 70 + "\n")
@@ -106,70 +55,72 @@ def create_map(df):
         tiles='OpenStreetMap'
     )
 
-    # Récupérer min/max prix pour normalisation couleur
+    # borne couleurs
     min_prix = df['prix_m2_moyen'].min()
     max_prix = df['prix_m2_moyen'].max()
 
-    print("Prix min: {:.0f}€/m²".format(min_prix))
-    print("Prix max: {:.0f}€/m²".format(max_prix))
-    print("Gamme: {:.0f}€/m²\n".format(max_prix - min_prix))
+    print(f"Prix min : {min_prix:.0f} €/m²")
+    print(f"Prix max : {max_prix:.0f} €/m²\n")
 
-    # Ajouter markers pour chaque arrondissement
+    # CHOROPLETHE — coloration réelle des arrondissements
+    choropleth = folium.Choropleth(
+        geo_data=geojson,
+        name="Choroplèthe prix/m2",
+        data=df,
+        columns=["arrondissement", "prix_m2_moyen"],
+        key_on="feature.properties.c_ar",   # champ du GeoJSON (numéro arrondissement)
+        fill_color="YlOrRd",
+        fill_opacity=0.8,
+        line_opacity=0.6,
+        line_color="black",
+        nan_fill_color="grey",
+        legend_name="Prix moyen au m²",
+    ).add_to(m)
+
+    # TOOLTIP (nom + numéro arrondissement)
+    folium.GeoJson(
+        geojson,
+        name="Arrondissements",
+        tooltip=folium.features.GeoJsonTooltip(
+            fields=["l_ar"],
+            aliases=["Arrondissement :"],
+            localize=True,
+            sticky=True
+        )
+    ).add_to(m)
+
+    # POPUPS — afficher prix, transactions, surface, etc.
     for idx, row in df.iterrows():
-        arr = int(row['arrondissement'])
-        lat = row['latitude']
-        lon = row['longitude']
-        prix = row['prix_m2_moyen']
-        prix_median = row['prix_m2_median']
-        nb_trans = row['nombre_transactions']
-        surface_moy = row['surface_moyenne']
+        arr = int(row["arrondissement"])
+        prix = row["prix_m2_moyen"]
+        median = row["prix_m2_median"]
+        trans = row["nombre_transactions"]
+        surf = row["surface_moyenne"]
+        nom = row["nom_arrondissement"]
 
-        color = create_color(prix, min_prix, max_prix)
+        popup_html = f"""
+        <b>{nom}</b><br>
+        Prix moyen : {prix:.0f} €/m²<br>
+        Prix médian : {median:.0f} €/m²<br>
+        Transactions : {trans:,}<br>
+        Surface moyenne : {surf:.0f} m²
+        """
 
-        # Créer popup
-        popup_text = """
-        <b>75{:02d} - {}</b><br>
-        Prix moyen: {:.0f} €/m²<br>
-        Prix median: {:.0f} €/m²<br>
-        Transactions: {:,}<br>
-        Surface moyenne: {:.0f} m²
-        """.format(arr, row['nom_arrondissement'].split(' - ')[1], prix, prix_median, nb_trans, surface_moy)
+        # on place le popup sur le barycentre de l'arrondissement
+        if not pd.isna(row["latitude"]) and not pd.isna(row["longitude"]):
+            folium.Marker(
+                [row["latitude"], row["longitude"]],
+                popup=folium.Popup(popup_html, max_width=300),
+                icon=folium.Icon(color="blue", icon="info-sign")
+            ).add_to(m)
 
-        # Ajouter cercle
-        folium.Circle(
-            location=[lat, lon],
-            radius=800,
-            popup=folium.Popup(popup_text, max_width=300),
-            color=color,
-            fill=True,
-            fillColor=color,
-            fillOpacity=0.7,
-            weight=2
-        ).add_to(m)
-
-    # Ajouter légende
-    legend_html = '''
-    <div style="position: fixed; 
-                bottom: 50px; right: 50px; width: 250px; height: 180px; 
-                background-color: white; border:2px solid grey; z-index:9999; font-size:14px;
-                padding: 10px">
-    <p><b>Prix au m² (€)</b></p>
-    <p><i style="background: #00ff00; width: 20px; height: 10px; display: inline-block;"></i> Bon marché ({:.0f})</p>
-    <p><i style="background: #ffff00; width: 20px; height: 10px; display: inline-block;"></i> Moyen ({:.0f})</p>
-    <p><i style="background: #ff0000; width: 20px; height: 10px; display: inline-block;"></i> Cher ({:.0f})</p>
-    </div>
-    '''.format(min_prix, (min_prix + max_prix) / 2, max_prix)
-
-    m.get_root().html.add_child(folium.Element(legend_html))
+    # couche
+    folium.LayerControl().add_to(m)
 
     return m
 
 
 def main():
-    if not os.path.isfile(INPUT_PATH):
-        print("Erreur: {} non trouvé".format(INPUT_PATH))
-        return
-
     print("=" * 70)
     print("GENERATION CARTE INTERACTIVE - DVFGeo")
     print("=" * 70 + "\n")
@@ -177,8 +128,11 @@ def main():
     # Charger données
     df = load_data(INPUT_PATH)
 
+    # Charger GeoJSON polygonal
+    geojson = load_geojson(GEOJSON_PATH)
+
     # Créer carte
-    m = create_map(df)
+    m = create_map(df, geojson)
 
     # Sauvegarder
     m.save(OUTPUT_FILE)
@@ -186,7 +140,7 @@ def main():
     print("=" * 70)
     print("GENERATION COMPLETE")
     print("=" * 70)
-    print("\nFichier genere: {}".format(OUTPUT_FILE))
+    print("\nFichier genere : {}".format(OUTPUT_FILE))
     print("Ouvrir dans navigateur pour voir la carte")
 
 

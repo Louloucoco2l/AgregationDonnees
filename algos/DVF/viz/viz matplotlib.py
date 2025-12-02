@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-INPUT_TEMPOREL = "../../../datas/downloaded/geocodes/tableau/dvfgeo_tableau_temporel.csv"
-INPUT_ARROND = "../../../datas/downloaded/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
-INPUT_TYPE = "../../../datas/downloaded/geocodes/tableau/dvfgeo_tableau_type_local.csv"
+INPUT_TEMPOREL = "../../../datas/old_dataset/geocodes/tableau/dvfgeo_tableau_temporel.csv"
+INPUT_ARROND = "../../../datas/old_dataset/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
+INPUT_TYPE = "../../../datas/old_dataset/geocodes/tableau/dvfgeo_tableau_type_local.csv"
 OUTPUT_DIR = "../../../plots/"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)

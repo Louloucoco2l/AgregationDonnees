@@ -1,5 +1,5 @@
 """
-    Agrégateur DVF géocodées depuis data.gouv.fr
+    Agrégateur old_dataset géocodées depuis data.gouv.fr
     Filtre sur Paris (75) + sépare exploitable/inexploitable
 
     Source: https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees
@@ -11,20 +11,20 @@ import os
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Fichiers DVF géocodés (data.gouv.fr)
+# Fichiers old_dataset géocodés (data.gouv.fr)
 fichiers = [
-    "../../../datas/downloaded/geocodes/brut/2020_75.csv",
-    "../../../datas/downloaded/geocodes/brut/2021_75.csv",
-    "../../../datas/downloaded/geocodes/brut/2022_75.csv",
-    "../../../datas/downloaded/geocodes/brut/2023_75.csv",
-    "../../../datas/downloaded/geocodes/brut/2024_75.csv",
-    "../../../datas/downloaded/geocodes/brut/2025_75.csv",
+    "../../../datas/old_dataset/geocodes/brut/2020_75.csv",
+    "../../../datas/old_dataset/geocodes/brut/2021_75.csv",
+    "../../../datas/old_dataset/geocodes/brut/2022_75.csv",
+    "../../../datas/old_dataset/geocodes/brut/2023_75.csv",
+    "../../../datas/old_dataset/geocodes/brut/2024_75.csv",
+    "../../../datas/old_dataset/geocodes/brut/2025_75.csv",
 ]
 
 # Fichiers de sortie
-fichier_tous = os.path.join(base_dir, "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025.csv")
-fichier_exploitables = os.path.join(base_dir, "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv")
-fichier_inexploitables = os.path.join(base_dir, "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-inexploitables.csv")
+fichier_tous = os.path.join(base_dir, "../../../datas/old_dataset/geocodes/cleaned/dvf_paris_2020-2025.csv")
+fichier_exploitables = os.path.join(base_dir, "../../../datas/old_dataset/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv")
+fichier_inexploitables = os.path.join(base_dir, "../../../datas/old_dataset/geocodes/cleaned/dvf_paris_2020-2025-inexploitables.csv")
 
 # Crée le répertoire s'il n'existe pas
 output_dir = os.path.dirname(fichier_tous)
@@ -49,7 +49,7 @@ compteur_exploitables = 0
 compteur_inexploitables = 0
 
 print("="*70)
-print("AGRÉGATION DVF GÉOCODÉES PARIS 2020-2025")
+print("AGRÉGATION old_dataset GÉOCODÉES PARIS 2020-2025")
 print("="*70)
 
 for fichier in fichiers:

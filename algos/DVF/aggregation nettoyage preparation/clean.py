@@ -1,5 +1,5 @@
 """
-    Script de nettoyage DVF géocodées - VERSION OPTIMISÉE v2
+    Script de nettoyage old_dataset géocodées - VERSION OPTIMISÉE v2
     - Supprime colonnes vides
     - Filtre sur Paris
     - Ajoute prix_m2 et arrondissement
@@ -18,7 +18,7 @@ import sys
 import pandas as pd
 import numpy as np
 
-INPUT_PATH = "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv"
+INPUT_PATH = "../../../datas/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv"
 OUTPUT_NORMAL = INPUT_PATH.replace('.csv', '-clean.csv')
 OUTPUT_ABERRANTES_HAUTE = INPUT_PATH.replace('-exploitables.csv', '-aberrantes-haute.csv')
 OUTPUT_ABERRANTES_BASSE = INPUT_PATH.replace('-exploitables.csv', '-aberrantes-basse.csv')
@@ -302,7 +302,7 @@ def main():
         sys.exit(1)
 
     print("="*70)
-    print("NETTOYAGE DVF GÉOCODÉES - FILTRAGE COMPLET (HAUT + BAS)")
+    print("NETTOYAGE old_dataset GÉOCODÉES - FILTRAGE COMPLET (HAUT + BAS)")
     print("="*70 + "\n")
 
     # Charger et préparer

@@ -7,7 +7,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
 
-# Puis on va dans datas/downloaded/scrapped
+# Puis on va dans datas/old_dataset/scrapped
 BASE_DIR = os.path.join(PROJECT_ROOT, "datas", "scrapped")
 
 print("Dossier CSV :", BASE_DIR)

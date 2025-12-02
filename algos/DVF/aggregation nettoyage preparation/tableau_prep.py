@@ -14,8 +14,8 @@ import os
 import sys
 import pandas as pd
 
-INPUT_PATH = "../../../datas/downloaded/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
-OUTPUT_DIR = "../../../datas/downloaded/geocodes/tableau/"
+INPUT_PATH = "../../../datas/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
+OUTPUT_DIR = "../../../datas/DVF/geocodes/tableau/"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
