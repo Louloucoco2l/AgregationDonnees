@@ -57,6 +57,37 @@ def plot_serie_temporelle(df_temp):
     plt.close()
     print("OK\n")
 
+def plot_serie_temporelle(df_temp):
+    """Evolution prix/m² par arrondissement sur le temps"""
+    print("Creation: serie_temporelle.png")
+
+    fig, ax = plt.subplots(figsize=(14, 8))
+
+    arrs = sorted(df_temp['arrondissement'].unique())
+    n_colors = 20
+    # Utiliser une palette de 20 couleurs pour une meilleure lisibilité
+    #if n_colors <= 20:
+    colors = sns.color_palette("tab20", n_colors=n_colors)
+    #else:
+    #    colors = sns.color_palette("hsv", n_colors=n_colors)
+
+    for arr, color in zip(arrs, colors):
+        subset = df_temp[df_temp['arrondissement'] == arr].sort_values('annee')
+        ax.plot(subset['annee'], subset['prix_m2_moyen'],
+                marker='o', label='75{:02d}'.format(int(arr)), linewidth=2, color=color)
+
+    ax.set_xlabel('Annee', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Prix moyen (€/m²)', fontsize=12, fontweight='bold')
+    ax.set_title('Evolution du prix au m² par arrondissement (2020-2025)',
+                 fontsize=14, fontweight='bold')
+    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2, fontsize=9)
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(OUTPUT_DIR, 'serie_temporelle.png'), dpi=150)
+    plt.close()
+    print("OK\n")
+
 
 def plot_classement_arrondissements(df_arr):
     """Classement des arrondissements par prix moyen"""
@@ -88,21 +119,15 @@ def plot_distribution_prix(df_arr):
     """Distribution des prix moyen entre arrondissements"""
     print("Creation: distribution_prix.png")
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    fig, ax = plt.subplots(figsize=(16, 8))
 
-    # Histogramme
-    ax1.hist(df_arr['prix_m2_moyen'], bins=10, color='steelblue', edgecolor='black', alpha=0.7)
-    ax1.set_xlabel('Prix moyen (€/m²)', fontsize=11, fontweight='bold')
-    ax1.set_ylabel('Nombre d\'arrondissements', fontsize=11, fontweight='bold')
-    ax1.set_title('Distribution du prix moyen', fontsize=12, fontweight='bold')
-    ax1.grid(True, alpha=0.3, axis='y')
 
     # Box plot
-    ax2.boxplot(df_arr['prix_m2_moyen'], vert=True, patch_artist=True,
+    plt.boxplot(df_arr['prix_m2_moyen'], vert=True, patch_artist=True,
                 boxprops=dict(facecolor='lightblue', alpha=0.7))
-    ax2.set_ylabel('Prix moyen (€/m²)', fontsize=11, fontweight='bold')
-    ax2.set_title('Boite a moustaches', fontsize=12, fontweight='bold')
-    ax2.grid(True, alpha=0.3, axis='y')
+    ax.set_ylabel('Prix moyen (€/m²)', fontsize=11, fontweight='bold')
+    ax.set_title('Boite a moustaches', fontsize=12, fontweight='bold')
+    ax.grid(True, alpha=0.3, axis='y')
 
     # Statistiques
     stats_text = "Moyenne: {:.0f}€/m²\nMediane: {:.0f}€/m²\nEcart-type: {:.0f}€/m²".format(
@@ -110,7 +135,7 @@ def plot_distribution_prix(df_arr):
         df_arr['prix_m2_moyen'].median(),
         df_arr['prix_m2_moyen'].std()
     )
-    ax2.text(1.3, df_arr['prix_m2_moyen'].median(), stats_text, fontsize=10,
+    plt.text(1.3, df_arr['prix_m2_moyen'].median(), stats_text, fontsize=10,
              bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
     plt.tight_layout()
