@@ -15,8 +15,8 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
 import seaborn as sns
 
-ML_DIR = "../../../datas/DVF/geocodes/ml/"
-OUTPUT_DIR = "../../../datas/DVF/geocodes/ml/results/"
+ML_DIR = "../../../models"
+OUTPUT_DIR = "../../../models"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 

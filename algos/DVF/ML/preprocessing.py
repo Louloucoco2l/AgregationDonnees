@@ -14,8 +14,9 @@ from sklearn.model_selection import train_test_split
 import pickle
 
 INPUT_PATH = "../../../datas/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
-OUTPUT_DIR = "../../../datas/DVF/geocodes/ml/"
+OUTPUT_DIR = "../../../models"
 
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
