@@ -1,13 +1,10 @@
-======================================================================
-RESULTATS MODELES ML - DVFGeo
-======================================================================
+RESULTATS MODELES ML - DVFGeo (Gradient Boosting)
+===============================================
 
-REGRESSION LINEAIRE (Prediction prix/m²)
-----------------------------------------------------------------------
-R² Test: 0.8858
-MAE Test: 1074.50€/m²
+ESTIMATION PRIX (HistGradientBoostingRegressor)
+RÂ² Test: 0.2485
+MAE Test: 2328.48â‚¬/mÂ²
 
-REGRESSION LOGISTIQUE (Classification cher/bon marche)
-----------------------------------------------------------------------
-Accuracy Test: 0.9919
-ROC-AUC: 0.9997
+CLASSIFICATION (LogisticRegression)
+Accuracy Test: 0.7005
+ROC-AUC: 0.7671
