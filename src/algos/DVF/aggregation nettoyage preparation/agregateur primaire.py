@@ -7,37 +7,31 @@
 """
 
 import pandas as pd
-import os
+from src.config import paths
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
+brut_dir = paths.data.DVF.old_dataset.brut.path
 # Fichiers old_dataset géocodés (data.gouv.fr)
 fichiers = [
-    "../../../datas/old_dataset/geocodes/brut/2020_75.csv",
-    "../../../datas/old_dataset/geocodes/brut/2021_75.csv",
-    "../../../datas/old_dataset/geocodes/brut/2022_75.csv",
-    "../../../datas/old_dataset/geocodes/brut/2023_75.csv",
-    "../../../datas/old_dataset/geocodes/brut/2024_75.csv",
-    "../../../datas/old_dataset/geocodes/brut/2025_75.csv",
+    brut_dir / f"{annee}_75.csv"
+    for annee in range(2020, 2026)
 ]
 
 # Fichiers de sortie
-fichier_tous = os.path.join(base_dir, "../../../datas/old_dataset/geocodes/cleaned/dvf_paris_2020-2025.csv")
-fichier_exploitables = os.path.join(base_dir, "../../../datas/old_dataset/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv")
-fichier_inexploitables = os.path.join(base_dir, "../../../datas/old_dataset/geocodes/cleaned/dvf_paris_2020-2025-inexploitables.csv")
+cleaned_dir = paths.data.DVF.old_dataset.cleaned.path
+fichier_tous = cleaned_dir / "dvf_paris_2020-2025.csv"
+fichier_exploitables = cleaned_dir / "dvf_paris_2020-2025-exploitables.csv"
+fichier_inexploitables = cleaned_dir / "dvf_paris_2020-2025-inexploitables.csv"
 
-# Crée le répertoire s'il n'existe pas
-output_dir = os.path.dirname(fichier_tous)
-os.makedirs(output_dir, exist_ok=True)
+
 
 # Supprime les fichiers existants
 for f in [fichier_tous, fichier_exploitables, fichier_inexploitables]:
-    if os.path.exists(f):
+    if f.exists():
         try:
-            os.remove(f)
-            print(f"Ancien fichier supprimé: {os.path.basename(f)}")
+            f.unlink()
+            print(f"Ancien fichier supprimé: {f.name}")
         except PermissionError:
-            print(f"Impossible de supprimer {os.path.basename(f)} - fermez le fichier")
+            print(f"Impossible de supprimer {f.name} - fermez le fichier")
             import sys
             sys.exit(1)
 
@@ -48,21 +42,18 @@ compteur_tous = 0
 compteur_exploitables = 0
 compteur_inexploitables = 0
 
-print("="*70)
 print("AGRÉGATION old_dataset GÉOCODÉES PARIS 2020-2025")
-print("="*70)
 
 for fichier in fichiers:
-    chemin = os.path.join(base_dir, fichier)
-    if not os.path.exists(chemin):
-        print(f"Fichier introuvable : {chemin}")
+    if not paths.exists(fichiers):
+        print(f"Fichier introuvable : {fichiers}")
         continue
 
-    print(f"\nTraitement de : {os.path.basename(chemin)}")
+    print(f"\nTraitement de : {paths.basename(fichiers)}")
 
     try:
         chunks = pd.read_csv(
-            chemin,
+            fichiers,
             sep=',',
             dtype=str,
             encoding='utf-8',
@@ -87,19 +78,15 @@ for fichier in fichiers:
         if len(paris_chunk) == 0:
             continue
 
-        # Extraction année depuis date_mutation (format YYYY-MM-DD)
-        try:
-            paris_chunk["annee"] = pd.to_datetime(paris_chunk["date_mutation"], errors='coerce').dt.year.astype(str)
-        except:
-            # Fallback : extraire de nom fichier
-            annee = os.path.basename(chemin).split('_')[0]
-            paris_chunk["annee"] = annee
+        # Extraction année : extraire de nom fichier
+        annee = fichier.name.split('_')[0]
+        paris_chunk["annee"] = annee
 
         # ========== FICHIER 1 : TOUS ==========
         if len(paris_chunk) > 0:
             try:
-                mode = 'a' if os.path.exists(fichier_tous) else 'w'
-                header = not os.path.exists(fichier_tous)
+                mode = 'a' if fichier_tous.exists else 'w'
+                header = not fichier_tous.exists
                 paris_chunk.to_csv(
                     fichier_tous,
                     sep=';',
@@ -157,8 +144,8 @@ for fichier in fichiers:
         # ========== FICHIER 2 : EXPLOITABLES ==========
         if len(paris_exploitable) > 0:
             try:
-                mode = 'a' if os.path.exists(fichier_exploitables) else 'w'
-                header = not os.path.exists(fichier_exploitables)
+                mode = 'a' if fichier_exploitables.exists else 'w'
+                header = not fichier_exploitables.exists
                 paris_exploitable.to_csv(
                     fichier_exploitables,
                     sep=';',
@@ -175,8 +162,8 @@ for fichier in fichiers:
         # ========== FICHIER 3 : INEXPLOITABLES ==========
         if len(paris_inexploitable) > 0:
             try:
-                mode = 'a' if os.path.exists(fichier_inexploitables) else 'w'
-                header = not os.path.exists(fichier_inexploitables)
+                mode = 'a' if fichier_inexploitables.exists else 'w'
+                header = not fichier_inexploitables.exists
                 paris_inexploitable.to_csv(
                     fichier_inexploitables,
                     sep=';',
@@ -198,11 +185,7 @@ for fichier in fichiers:
         print(f"           ├─ {len(paris_exploitable):>6} exploitables ({exp_pct:>5.1f}%)")
         print(f"           └─ {len(paris_inexploitable):>6} inexploitables ({inexpl_pct:>5.1f}%)")
 
-print("\n" + "="*70)
 print("AGRÉGATION COMPLÉTÉE")
-print("="*70)
-
-print(f"\nRÉSUMÉ :")
 print(f"\nTOUTES LES DONNÉES")
 print(f"   Fichier: {fichier_tous}")
 print(f"   Lignes: {compteur_tous:>8}")

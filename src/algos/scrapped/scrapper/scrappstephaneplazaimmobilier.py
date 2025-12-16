@@ -35,7 +35,7 @@ while True:
     time.sleep(1.5)
 
 # ------------------ Scrape & CSV ------------------
-with open("../../datas/scrapped/annonces_plaza_paris.csv", "w", newline="", encoding="utf-8") as f:
+with open("../../data/scrapped/annonces_stephane_plaza_paris.csv", "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(["type", "prix", "surface", "nb_pieces", "localisation", "details"])
 

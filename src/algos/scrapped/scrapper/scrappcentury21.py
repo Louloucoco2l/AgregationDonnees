@@ -13,7 +13,7 @@ driver = webdriver.Chrome(options=options)
 url = "https://www.century21.fr/annonces/f/achat/v-paris/"
 driver.get(url)
 
-with open("../../datas/scrapped/annonces_century21_paris.csv", "w", newline="", encoding="utf-8") as file:
+with open("../../data/scrapped/annonces_century21_paris.csv", "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerow(["type", "prix", "surface", "nb_pieces", "localisation", "details"])
 

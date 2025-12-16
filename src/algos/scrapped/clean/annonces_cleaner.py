@@ -14,7 +14,6 @@ import glob
 import re
 import pandas as pd
 import sys
-from datetime import datetime
 
 
 class AnnoncesCleaner:
@@ -23,8 +22,8 @@ class AnnoncesCleaner:
     def __init__(self):
         """Initialise les chemins"""
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
-        self.project_root = os.path.abspath(os.path.join(self.current_dir, "..", ".."))
-        self.base_dir = os.path.join(self.project_root, "datas", "scrapped")
+        self.project_root = os.path.abspath(os.path.join(self.current_dir, "..", "..", ".."))
+        self.base_dir = os.path.join(self.project_root, "data", "scrapped")
 
         # Créer répertoire s'il n'existe pas
         os.makedirs(self.base_dir, exist_ok=True)
@@ -60,16 +59,14 @@ class AnnoncesCleaner:
 
     def merge_sources(self):
         """Fusionne tous les fichiers scrappés"""
-        print("=" * 70)
         print("ETAPE 1 - FUSION SOURCES")
-        print("=" * 70 + "\n")
 
         files = [
-            "../../../datas/scrapped/annonces_orpi_paris.csv",
-            "../../../datas/scrapped/annonces_laforet_paris.csv",
-            "../../../datas/scrapped/annonces_century21_paris.csv",
-            "../../../datas/scrapped/annonces_stephane_plaza_paris.csv",
-            "../../../datas/scrapped/annonces_lefigaro_paris.csv"
+            "../../../../data/scrapped/annonces_orpi_paris.csv",
+            "../../../../data/scrapped/annonces_laforet_paris.csv",
+            "../../../../data/scrapped/annonces_century21_paris.csv",
+            "../../../../data/scrapped/annonces_stephane_plaza_paris.csv",
+            "../../../../data/scrapped/annonces_lefigaro_paris.csv"
         ]
 
         if not files:
@@ -116,10 +113,8 @@ class AnnoncesCleaner:
         output_path = os.path.join(self.base_dir, "annonces_paris_merged.csv")
         df_merged.to_csv(output_path, sep=";", index=False, encoding="utf-8")
 
-        print("\n" + "-" * 70)
         print("Fusion terminée: {} lignes".format(len(df_merged)))
         print("Fichier généré: {}".format(output_path))
-        print("-" * 70 + "\n")
 
         return df_merged
 
@@ -269,9 +264,7 @@ class AnnoncesCleaner:
 
     def clean_data(self, df):
         """Nettoie les colonnes numeriques et catégories"""
-        print("=" * 70)
         print("ETAPE 2 - NETTOYAGE DONNEES")
-        print("=" * 70 + "\n")
 
         print("Nettoyage type de bien...")
         df["type"] = df.apply(
@@ -327,17 +320,13 @@ class AnnoncesCleaner:
             "localisation_clean": "localisation"
         })
 
-        print("\n" + "-" * 70)
         print("Nettoyage terminé: {} lignes".format(len(df_clean)))
-        print("-" * 70 + "\n")
 
         return df_clean
 
     def filter_paris_only(self, df):
         """Filtre uniquement annonces Paris (75XXX)"""
-        print("=" * 70)
         print("ETAPE 3 - FILTRAGE PARIS UNIQUEMENT")
-        print("=" * 70 + "\n")
 
         avant = len(df)
         df_paris = df[df["localisation"].notna()].copy()
@@ -349,17 +338,13 @@ class AnnoncesCleaner:
         print("\nRépartition par arrondissement:")
         print(df_paris["localisation"].value_counts().sort_index())
 
-        print("\n" + "-" * 70)
         print("Résultat: {} lignes Paris".format(len(df_paris)))
-        print("-" * 70 + "\n")
 
         return df_paris
 
     def remove_duplicates(self, df):
         """Supprime doublons"""
-        print("=" * 70)
         print("ETAPE 4 - SUPPRESSION DOUBLONS")
-        print("=" * 70 + "\n")
 
         avant = len(df)
 
@@ -384,19 +369,15 @@ class AnnoncesCleaner:
 
         apres = len(df_uniq)
 
-        print("\n" + "-" * 70)
         print("Avant: {} lignes".format(avant))
         print("Après: {} lignes".format(apres))
         print("Supprimés: {} doublons".format(nb_duplicates))
-        print("-" * 70 + "\n")
 
         return df_uniq
 
     def validate_and_export(self, df):
         """Valide et exporte les données finales"""
-        print("=" * 70)
         print("ETAPE 5 - VALIDATION ET EXPORT")
-        print("=" * 70 + "\n")
 
         print("Statistiques finales:")
         print("  Total lignes: {}".format(len(df)))
@@ -423,17 +404,13 @@ class AnnoncesCleaner:
         output_path = os.path.join(self.base_dir, "annonces_paris_final.csv")
         df.to_csv(output_path, sep=";", index=False, encoding="utf-8")
 
-        print("\n" + "-" * 70)
         print("Fichier généré: {}".format(output_path))
-        print("-" * 70 + "\n")
 
         return output_path
 
     def run_pipeline(self):
         """Exécute le pipeline complet"""
-        print("\n" + "=" * 70)
         print("PIPELINE NETTOYAGE ANNONCES SCRAPPEES")
-        print("=" * 70 + "\n")
         print("Répertoire base: {}".format(self.base_dir))
         print()
 
@@ -454,9 +431,7 @@ class AnnoncesCleaner:
         # Étape 5: Export
         output_path = self.validate_and_export(df_unique)
 
-        print("=" * 70)
         print("PIPELINE COMPLETE - SUCCESS")
-        print("=" * 70)
 
         return True
 

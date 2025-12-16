@@ -6,18 +6,16 @@
     - Heatmap type x arrondissement
 """
 
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from src.config import paths
 
-INPUT_TEMPOREL = "../../../datas/old_dataset/geocodes/tableau/dvfgeo_tableau_temporel.csv"
-INPUT_ARROND = "../../../datas/old_dataset/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
-INPUT_TYPE = "../../../datas/old_dataset/geocodes/tableau/dvfgeo_tableau_type_local.csv"
-OUTPUT_DIR = "../../../plots/"
-
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+INPUT_TEMPOREL = paths.data.DVF.geocodes.tableau/"dvfgeo_tableau_temporel.csv"
+INPUT_ARROND = paths.data.DVF.geocodes.tableau/"dvfgeo_tableau_arrondissements.csv"
+INPUT_TYPE = paths.data.DVF.geocodes.tableau/"dvfgeo_tableau_type_local.csv"
+OUTPUT_DIR = paths.plots.DVF.path
 
 # Configuration matplotlib
 plt.style.use('seaborn-v0_8-darkgrid')
@@ -53,7 +51,7 @@ def plot_serie_temporelle(df_temp):
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'serie_temporelle.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'serie_temporelle.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -84,7 +82,7 @@ def plot_serie_temporelle(df_temp):
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'serie_temporelle.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'serie_temporelle.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -110,7 +108,7 @@ def plot_classement_arrondissements(df_arr):
                 va='center', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'classement_arrondissements.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'classement_arrondissements.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -139,7 +137,7 @@ def plot_distribution_prix(df_arr):
              bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'distribution_prix.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'distribution_prix.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -168,7 +166,7 @@ def plot_heatmap_type_arrond(df_type):
                  fontsize=14, fontweight='bold')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'heatmap_type_arrondissement.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'heatmap_type_arrondissement.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -192,23 +190,19 @@ def plot_volume_transactions(df_arr):
     ax.grid(True, alpha=0.3, axis='y')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'volume_transactions.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'volume_transactions.png', dpi=150)
     plt.close()
     print("OK\n")
 
 
 def main():
-    print("=" * 70)
     print("GENERATION VISUALISATIONS - DVFGeo")
-    print("=" * 70 + "\n")
 
     # Charger données
     df_temp, df_arr, df_type = load_data()
 
     # Créer visualisations
-    print("=" * 70)
     print("CREATION GRAPHIQUES")
-    print("=" * 70 + "\n")
 
     plot_serie_temporelle(df_temp)
     plot_classement_arrondissements(df_arr)
@@ -216,9 +210,7 @@ def main():
     plot_heatmap_type_arrond(df_type)
     plot_volume_transactions(df_arr)
 
-    print("=" * 70)
     print("GENERATION COMPLETE")
-    print("=" * 70)
     print("\nFichiers generes dans: {}".format(OUTPUT_DIR))
 
 

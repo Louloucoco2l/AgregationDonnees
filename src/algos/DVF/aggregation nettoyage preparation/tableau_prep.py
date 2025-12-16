@@ -10,14 +10,13 @@
     - dvfgeo_tableau_detail.csv (191K lignes)
 """
 
-import os
 import sys
 import pandas as pd
+from src.config import paths
 
-INPUT_PATH = "../../../datas/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
-OUTPUT_DIR = "../../../datas/DVF/geocodes/tableau/"
+INPUT_PATH = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-exploitables-clean.csv"
+OUTPUT_DIR = paths.data.DVF.geocodes.tableau.path
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Coordonnées centrales des 20 arrondissements de Paris
 ARRONDISSEMENTS = {
@@ -46,7 +45,7 @@ ARRONDISSEMENTS = {
 
 def load_data(filepath):
     """Charge les données nettoyées"""
-    print("Chargement: " + os.path.basename(filepath))
+    print("Chargement: " + filepath.name)
 
     df = pd.read_csv(filepath, sep=';', dtype=str, low_memory=False)
 
@@ -82,9 +81,7 @@ def load_data(filepath):
 
 def create_arrondissements(df):
     """Crée le fichier agrégé par arrondissement"""
-    print("=" * 70)
     print("Creation: dvfgeo_tableau_arrondissements.csv")
-    print("=" * 70)
 
     agg_data = []
 
@@ -116,7 +113,7 @@ def create_arrondissements(df):
     print(df_arr.to_string(index=False))
 
     df_arr.to_csv(
-        os.path.join(OUTPUT_DIR, "dvfgeo_tableau_arrondissements.csv"),
+        OUTPUT_DIR/ "dvfgeo_tableau_arrondissements.csv",
         sep=';', index=False, encoding='utf-8'
     )
     print("Export OK\n")
@@ -126,9 +123,7 @@ def create_arrondissements(df):
 
 def create_temporel(df):
     """Crée le fichier agrégé par année et arrondissement"""
-    print("=" * 70)
     print("Creation: dvfgeo_tableau_temporel.csv")
-    print("=" * 70)
 
     agg_data = []
 
@@ -156,7 +151,7 @@ def create_temporel(df):
     print(df_temp.head(10).to_string(index=False))
 
     df_temp.to_csv(
-        os.path.join(OUTPUT_DIR, "dvfgeo_tableau_temporel.csv"),
+        OUTPUT_DIR/ "dvfgeo_tableau_temporel.csv",
         sep=';', index=False, encoding='utf-8'
     )
     print("Export OK\n")
@@ -166,9 +161,7 @@ def create_temporel(df):
 
 def create_type_local(df):
     """Crée le fichier agrégé par type de local et arrondissement"""
-    print("=" * 70)
     print("Creation: dvfgeo_tableau_type_local.csv")
-    print("=" * 70)
 
     agg_data = []
 
@@ -202,7 +195,7 @@ def create_type_local(df):
     print(df_type['type_local'].unique())
 
     df_type.to_csv(
-        os.path.join(OUTPUT_DIR, "dvfgeo_tableau_type_local.csv"),
+        OUTPUT_DIR/ "dvfgeo_tableau_type_local.csv",
         sep=';', index=False, encoding='utf-8'
     )
     print("Export OK\n")
@@ -212,9 +205,7 @@ def create_type_local(df):
 
 def create_detail(df):
     """Crée le fichier détail avec toutes les transactions"""
-    print("=" * 70)
     print("Creation: dvfgeo_tableau_detail.csv")
-    print("=" * 70)
 
     # Sélectionner colonnes pertinentes
     colonnes_output = [
@@ -234,7 +225,7 @@ def create_detail(df):
     print(df_detail.head(5).to_string())
 
     df_detail.to_csv(
-        os.path.join(OUTPUT_DIR, "dvfgeo_tableau_detail.csv"),
+        OUTPUT_DIR/ "dvfgeo_tableau_detail.csv",
         sep=';', index=False, encoding='utf-8'
     )
     print("\nExport OK\n")
@@ -244,9 +235,7 @@ def create_detail(df):
 
 def print_summary():
     """Affiche un résumé des fichiers générés"""
-    print("=" * 70)
     print("RESUME - FICHIERS GENERES POUR TABLEAU")
-    print("=" * 70)
 
     print("\n1. dvfgeo_tableau_arrondissements.csv")
     print("   - 20 lignes (un par arrondissement)")
@@ -281,13 +270,11 @@ def print_summary():
 
 
 def main():
-    if not os.path.isfile(INPUT_PATH):
+    if not INPUT_PATH.isfile():
         print("Erreur: Fichier introuvable: {}".format(INPUT_PATH))
         sys.exit(1)
 
-    print("=" * 70)
     print("PREPARATION DONNEES TABLEAU - DVFGeo")
-    print("=" * 70 + "\n")
 
     # Charger données
     df = load_data(INPUT_PATH)
@@ -301,9 +288,7 @@ def main():
     # Résumé
     print_summary()
 
-    print("=" * 70)
     print("PREPARATION COMPLETE")
-    print("=" * 70)
     print("\nFichiers generes dans: {}".format(OUTPUT_DIR))
 
 

@@ -5,11 +5,11 @@
 """
 
 import pandas as pd
-import os
 import sys
+from src.config import paths
 
-INPUT_DIR = "../../datas/fiscal"
-OUTPUT_DIR = "./"
+INPUT_DIR = paths.data.fiscal.brut.path
+OUTPUT_DIR = paths.data.fiscal.cleaned.path
 OUTPUT_FILE = "ircom_2020-2023_paris_clean.csv"
 
 # Fichiers à agréger
@@ -33,8 +33,7 @@ class IRCOMCleaner:
         """
         self.fichier_input = fichier_input
         self.annee = str(annee)
-        self.current_dir = os.path.dirname(os.path.abspath(__file__))
-
+        self.current_dir = paths.data.fiscal.brut.path.parent
         self.data_start_row = 20
 
         self.colonnes_finales = [
@@ -56,14 +55,15 @@ class IRCOMCleaner:
         """Charge le fichier Excel"""
         print("CHARGEMENT")
 
-        if not os.path.exists(self.fichier_input):
-            print(f"Erreur: Fichier introuvable: {self.fichier_input}")
+        input_path = self.fichier_input
+        if not input_path.exists():
+            print(f"Erreur: Fichier introuvable: {input_path}")
             return None
 
-        print(f"Chargement: {os.path.basename(self.fichier_input)}")
+        print(f"Chargement: {input_path.name}")
 
         try:
-            df_raw = pd.read_excel(self.fichier_input)
+            df_raw = pd.read_excel(input_path)
         except Exception as e:
             print(f"Erreur lecture: {e}")
             return None
@@ -212,11 +212,10 @@ def main():
     dfs_annees = []
 
     for annee, fichier in FICHIERS_ANNEES.items():
-        fichier_path = os.path.join(INPUT_DIR, fichier)
-
+        fichier_path = INPUT_DIR / fichier
         print(f"TRAITEMENT ANNÉE {annee}")
 
-        if not os.path.exists(fichier_path):
+        if not fichier_path.exists():
             print(f"Fichier introuvable: {fichier_path}")
             print(f"   Année {annee} ignorée\n")
             continue
@@ -258,7 +257,7 @@ def main():
 
     print("EXPORT FICHIER FINAL")
 
-    output_path = os.path.join(OUTPUT_DIR, OUTPUT_FILE)
+    output_path = OUTPUT_DIR / OUTPUT_FILE
 
     try:
         df_final.to_csv(output_path, sep=';', index=False, encoding='utf-8', quoting=1)

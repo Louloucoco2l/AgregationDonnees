@@ -13,15 +13,16 @@
     - dvf_paris_aberrantes_basse.csv (outliers bas / ventes symboliques)
 """
 
-import os
 import sys
 import pandas as pd
 import numpy as np
+from src.config import paths
 
-INPUT_PATH = "../../../datas/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables.csv"
-OUTPUT_NORMAL = INPUT_PATH.replace('.csv', '-clean.csv')
-OUTPUT_ABERRANTES_HAUTE = INPUT_PATH.replace('-exploitables.csv', '-aberrantes-haute.csv')
-OUTPUT_ABERRANTES_BASSE = INPUT_PATH.replace('-exploitables.csv', '-aberrantes-basse.csv')
+
+INPUT_PATH = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-exploitables.csv"
+OUTPUT_NORMAL = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-exploitables-clean.csv"
+OUTPUT_ABERRANTES_HAUTE = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-aberrantes-haute.csv"
+OUTPUT_ABERRANTES_BASSE = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-aberrantes-basse.csv"
 
 # Seuils de filtrage bas (prix/m² minimum réaliste pour Paris)
 SEUIL_PRIX_M2_MIN = 2000  # €/m² - en dessous = vente symbolique/donation
@@ -30,7 +31,7 @@ SEUIL_VALEUR_MIN = 10000  # € - valeur foncière minimum
 
 def load_and_prepare(filepath):
     """Charge et prépare les données"""
-    print(f"Chargement: {os.path.basename(filepath)}")
+    print(f"Chargement: {filepath.name}")
 
     df = pd.read_csv(filepath, sep=';', dtype=str, low_memory=False)
 
@@ -43,20 +44,20 @@ def load_and_prepare(filepath):
     df['nombre_pieces_principales'] = pd.to_numeric(df['nombre_pieces_principales'], errors='coerce')
 
     # Surface composite (priorité: bâti, puis terrain)
-    df['surface'] = df['surface_reelle_bati'].fillna(df['surface_terrain'])
+    df['surface_m2_retenue'] = df['surface_reelle_bati'].fillna(df['surface_terrain'])
 
     # Prix au m²
     df['prix_m2'] = df.apply(
-        lambda row: round(row['valeur_fonciere'] / row['surface'], 2)
+        lambda row: round(row['valeur_fonciere'] / row['surface_m2_retenue'], 2)  # Changement ici
         if pd.notna(row['valeur_fonciere'])
-        and pd.notna(row['surface'])
-        and row['surface'] > 0
+           and pd.notna(row['surface_m2_retenue'])
+           and row['surface_m2_retenue'] > 0
         else None,
         axis=1
     )
 
     # Arrondissement depuis code_commune (75001-75020)
-    df['arrondissement'] = df['code_commune'].astype(str).str[-2:].astype(int)
+    df['code_arrondissement'] = df['code_commune'].astype(str).str[-2:].astype(int)
 
     # Date mutation au format datetime
     df['date_mutation'] = pd.to_datetime(df['date_mutation'], errors='coerce')
@@ -82,9 +83,7 @@ def remove_empty_columns(df):
 
 def analyze_distribution(df):
     """Analyse distribution pour détecter les vrais outliers"""
-    print("="*70)
     print("ANALYSE DE DISTRIBUTION - DÉTECTION OUTLIERS")
-    print("="*70)
 
     prix = df['prix_m2'].dropna()
 
@@ -147,29 +146,44 @@ def analyze_distribution(df):
     return seuil_bas, seuil_haut
 
 
-def apply_filter(df, seuil_bas, seuil_haut):
-    """Applique le filtrage: exclut aberrantes basses ET hautes"""
-    print("\n" + "="*70)
-    print("🔍 FILTRAGE - ABERRANTES BASSES ET HAUTES")
-    print("="*70)
+# Dans clean.py, modifiez la fonction apply_filter
 
-    # Masques
+def apply_filter(df, seuil_bas, seuil_haut):
+    """Applique le filtrage: exclut aberrantes basses/hautes ET types de biens non pertinents"""
+    print("FILTRAGE - ABERRANTES ET TYPES DE BIENS")
+
+    # 1. Filtre Type de Local : On ne garde que les Appartements
+    # Les Maisons à Paris sont des outliers statistiques (hôtels particuliers, impasses privées...)
+    # Les Dépendances/Locaux commerciaux polluent le prix au m² habitable.
+    mask_type = df['type_local'] == 'Appartement'
+
+    # 2. Filtre Surface : On exclut les "micro-surfaces" (< 9m²) souvent des chambres de bonne ou WC
+    # et les très grands plateaux (> 300m²) qui sont des marchés de niche.
+    mask_surface = (df['surface_m2_retenue'] >= 9) & (df['surface_m2_retenue'] <= 300)
+
+    # 3. Filtres Prix (existants)
     mask_trop_bas = (df['prix_m2'] < seuil_bas) | (df['valeur_fonciere'] < SEUIL_VALEUR_MIN)
     mask_trop_haut = df['prix_m2'] > seuil_haut
-    mask_normal = ~mask_trop_bas & ~mask_trop_haut & df['prix_m2'].notna()
+
+    # Combinaison
+    mask_normal = mask_type & mask_surface & ~mask_trop_bas & ~mask_trop_haut & df['prix_m2'].notna()
 
     df_normal = df[mask_normal].copy()
-    df_aberrantes_basse = df[mask_trop_bas].copy()
+
+    # Pour info (stats des rejets)
+    n_total = len(df)
+    n_kept = len(df_normal)
+    print(f"  Total initial : {n_total}")
+    print(f"  Après filtre Appartement & Surface (9-300m²) : {len(df[mask_type & mask_surface])}")
+    print(f"  Final (après filtre prix) : {n_kept} ({n_kept / n_total * 100:.1f}%)")
+
+    # On retourne des DFs vides pour les aberrantes pour ne pas casser la signature,
+    # ou on filtre juste les aberrantes du dataset 'normal' pour l'export.
+    # Pour simplifier ici, on garde la logique de retour mais on sait que df_normal est purifié.
+    df_aberrantes_basse = df[mask_trop_bas].copy()  # Juste pour info
     df_aberrantes_haute = df[mask_trop_haut].copy()
 
-    total = len(df)
-    print(f"\nRésultats:")
-    print(f"  Normal ({seuil_bas:,.0f} - {seuil_haut:,.0f}€/m²): {len(df_normal):>8} ({len(df_normal)/total*100:>5.1f}%)")
-    print(f"  Aberrantes basses (< {seuil_bas:,.0f}€/m² ou valeur < {SEUIL_VALEUR_MIN:,.0f}€): {len(df_aberrantes_basse):>8} ({len(df_aberrantes_basse)/total*100:>5.1f}%)")
-    print(f"  Aberrantes hautes (> {seuil_haut:,.0f}€/m²): {len(df_aberrantes_haute):>8} ({len(df_aberrantes_haute)/total*100:>5.1f}%)")
-
     return df_normal, df_aberrantes_basse, df_aberrantes_haute
-
 
 def analyze_aberrantes_basses(df_aberrantes):
     """Analyse les aberrantes basses"""
@@ -177,9 +191,7 @@ def analyze_aberrantes_basses(df_aberrantes):
         print("\nAucune aberrante basse détectée.")
         return
 
-    print("\n" + "="*70)
     print("ANALYSE DES ABERRANTES BASSES (ventes symboliques)")
-    print("="*70)
 
     print(f"\nPrix/m² des aberrantes basses:")
     print(f"  Min: {df_aberrantes['prix_m2'].min():>10,.0f}€/m²")
@@ -210,9 +222,7 @@ def analyze_aberrantes_hautes(df_aberrantes):
         print("\nAucune aberrante haute détectée.")
         return
 
-    print("\n" + "="*70)
     print("ANALYSE DES ABERRANTES HAUTES")
-    print("="*70)
 
     print(f"\nPrix/m² des aberrantes:")
     print(f"  Min: {df_aberrantes['prix_m2'].min():>10,.0f}€/m²")
@@ -227,23 +237,20 @@ def analyze_aberrantes_hautes(df_aberrantes):
         print(f"  {str(tlocal)[:40]:40s}: {count:>6} ({pct:>5.1f}%)")
 
     print(f"\nRépartition par arrondissement:")
-    arr_counts = df_aberrantes['arrondissement'].value_counts().sort_index()
+    arr_counts = df_aberrantes['code_arrondissement'].value_counts().sort_index()
     for arr, count in arr_counts.items():
         pct = count / len(df_aberrantes) * 100
         print(f"  75{int(arr):02d}: {count:>6} ({pct:>5.1f}%)")
 
     print(f"\nTop 10 adresses les plus chères:")
-    top_10 = df_aberrantes.nlargest(10, 'prix_m2')[['adresse_numero', 'adresse_nom_voie', 'type_local', 'prix_m2', 'valeur_fonciere', 'surface']]
+    top_10 = df_aberrantes.nlargest(10, 'prix_m2')[    ['adresse_numero', 'adresse_nom_voie', 'type_local', 'prix_m2', 'valeur_fonciere', 'surface_m2_retenue']]
     for idx, row in top_10.iterrows():
         print(f"  {row['adresse_numero']} {row['adresse_nom_voie']} - {row['type_local']}")
-        print(f"    → {row['prix_m2']:>10,.0f}€/m² ({row['valeur_fonciere']:>12,.0f}€ / {row['surface']:>8,.0f}m²)")
-
+        print( f"    → {row['prix_m2']:>10,.0f}€/m² ({row['valeur_fonciere']:>12,.0f}€ / {row['surface_m2_retenue']:>8,.0f}m²)")
 
 def analyze_normal(df_normal):
     """Analyse des données normales"""
-    print("\n" + "="*70)
     print("ANALYSE DES DONNÉES NORMALES (FILTRÉES)")
-    print("="*70)
 
     print(f"\nPrix/m²:")
     print(f"  Min: {df_normal['prix_m2'].min():>10,.0f}€/m²")
@@ -258,37 +265,35 @@ def analyze_normal(df_normal):
     print(f"  Médiane: {df_normal['valeur_fonciere'].median():>12,.0f}€")
 
     print(f"\nSurface:")
-    print(f"  Min: {df_normal['surface'].min():>10,.0f}m²")
-    print(f"  Max: {df_normal['surface'].max():>10,.0f}m²")
-    print(f"  Médiane: {df_normal['surface'].median():>10,.0f}m²")
+    print(f"  Min: {df_normal['surface_m2_retenue'].min():>10,.0f}m²")
+    print(f"  Max: {df_normal['surface_m2_retenue'].max():>10,.0f}m²")
+    print(f"  Médiane: {df_normal['surface_m2_retenue'].median():>10,.0f}m²")
 
 
 def export_data(df_normal, df_aberrantes_basse, df_aberrantes_haute):
     """Exporte les données"""
-    print("\n" + "="*70)
     print("EXPORT")
-    print("="*70)
 
     try:
         df_normal.to_csv(OUTPUT_NORMAL, sep=';', index=False, encoding='utf-8')
-        print(f"✓ {len(df_normal)} lignes normales")
-        print(f"  → {OUTPUT_NORMAL}")
+        print(f"{len(df_normal)} lignes normales")
+        print(f"{OUTPUT_NORMAL}")
     except Exception as e:
         print(f"Erreur export normal: {e}")
         return False
 
     try:
         df_aberrantes_haute.to_csv(OUTPUT_ABERRANTES_HAUTE, sep=';', index=False, encoding='utf-8')
-        print(f"✓ {len(df_aberrantes_haute)} lignes aberrantes (hautes)")
-        print(f"  → {OUTPUT_ABERRANTES_HAUTE}")
+        print(f"{len(df_aberrantes_haute)} lignes aberrantes (hautes)")
+        print(f"{OUTPUT_ABERRANTES_HAUTE}")
     except Exception as e:
         print(f"Erreur export aberrantes hautes: {e}")
         return False
 
     try:
         df_aberrantes_basse.to_csv(OUTPUT_ABERRANTES_BASSE, sep=';', index=False, encoding='utf-8')
-        print(f"✓ {len(df_aberrantes_basse)} lignes aberrantes (basses)")
-        print(f"  → {OUTPUT_ABERRANTES_BASSE}")
+        print(f"{len(df_aberrantes_basse)} lignes aberrantes (basses)")
+        print(f"{OUTPUT_ABERRANTES_BASSE}")
     except Exception as e:
         print(f"Erreur export aberrantes basses: {e}")
         return False
@@ -297,13 +302,11 @@ def export_data(df_normal, df_aberrantes_basse, df_aberrantes_haute):
 
 
 def main():
-    if not os.path.isfile(INPUT_PATH):
+    if not INPUT_PATH.is_file():
         print(f"Fichier introuvable: {INPUT_PATH}")
         sys.exit(1)
 
-    print("="*70)
     print("NETTOYAGE old_dataset GÉOCODÉES - FILTRAGE COMPLET (HAUT + BAS)")
-    print("="*70 + "\n")
 
     # Charger et préparer
     df = load_and_prepare(INPUT_PATH)
@@ -328,9 +331,7 @@ def main():
 
     # Export
     if export_data(df_normal, df_aberrantes_basse, df_aberrantes_haute):
-        print("\n" + "="*70)
         print("NETTOYAGE COMPLÉTÉ AVEC SUCCÈS")
-        print("="*70)
     else:
         sys.exit(1)
 

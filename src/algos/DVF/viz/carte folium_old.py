@@ -11,7 +11,7 @@ import pandas as pd
 import folium
 from folium import plugins
 import json
-INPUT_PATH = "../../../datas/DVF/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
+INPUT_PATH = "../../../data/DVF/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
 OUTPUT_FILE = "../../../plots/DVF/carte_paris_heatmap.html"
 
 os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
@@ -92,9 +92,7 @@ def create_color(prix, min_prix, max_prix):
 
 def create_map(df):
     """Crée la carte Folium"""
-    print("=" * 70)
     print("Creation carte Folium")
-    print("=" * 70 + "\n")
 
     # Centre de Paris
     center = [48.8566, 2.3522]
@@ -170,9 +168,7 @@ def main():
         print("Erreur: {} non trouvé".format(INPUT_PATH))
         return
 
-    print("=" * 70)
     print("GENERATION CARTE INTERACTIVE - DVFGeo")
-    print("=" * 70 + "\n")
 
     # Charger données
     df = load_data(INPUT_PATH)
@@ -183,9 +179,7 @@ def main():
     # Sauvegarder
     m.save(OUTPUT_FILE)
 
-    print("=" * 70)
     print("GENERATION COMPLETE")
-    print("=" * 70)
     print("\nFichier genere: {}".format(OUTPUT_FILE))
     print("Ouvrir dans navigateur pour voir la carte")
 

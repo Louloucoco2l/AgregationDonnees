@@ -39,7 +39,7 @@ while True:
 
 cards = driver.find_elements(By.CSS_SELECTOR, "article.border-border-gray.relative.flex.overflow-hidden.rounded-xl")
 
-with open("../../datas/scrapped/annonces_laforet_paris_complet.csv", "w", newline="", encoding="utf-8") as f:
+with open("../../data/scrapped/annonces_laforet_paris.csv", "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f)
     w.writerow(["type", "prix", "surface", "nb_pieces", "localisation", "details"])
 

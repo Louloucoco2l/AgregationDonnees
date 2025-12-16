@@ -6,21 +6,20 @@
     - Légende
 """
 
-import os
 import pandas as pd
 import folium
 import json
+from src.config import paths
 
-INPUT_PATH = "../../../datas/DVF/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
-GEOJSON_PATH = "../../../datas/arrondissements.geojson"
-OUTPUT_FILE = "../../../plots/DVF/carte_paris_heatmap.1.html"
+INPUT_PATH = paths.data.DVF.geocodes.tableau/ "dvfgeo_tableau_arrondissements.csv"
+GEOJSON_PATH = paths.data.arrondissement/"arrondissements.geojson"
+OUTPUT_FILE = paths.plots.DVF/"carte_paris_heatmap.1.html"
 
-os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 
 
 def load_data(filepath):
     """Charge données arrondissements"""
-    print("Chargement: " + os.path.basename(filepath))
+    print("Chargement: " + filepath.name)
     df = pd.read_csv(filepath, sep=';')
     print("OK - {} lignes\n".format(len(df)))
     return df
@@ -29,7 +28,7 @@ def load_data(filepath):
 def load_geojson(filepath):
     """Charge GeoJSON polygonal des arrondissements"""
     print("Chargement GeoJSON arrondissements…")
-    if not os.path.isfile(filepath):
+    if not filepath.isfile():
         raise FileNotFoundError(f"GeoJSON introuvable : {filepath}")
 
     with open(filepath, "r", encoding="utf-8") as f:
@@ -41,9 +40,7 @@ def load_geojson(filepath):
 def create_map(df, geojson):
     """Crée la carte Folium"""
 
-    print("=" * 70)
     print("Creation carte Folium")
-    print("=" * 70 + "\n")
 
     # Centre de Paris
     center = [48.8566, 2.3522]
@@ -121,9 +118,7 @@ def create_map(df, geojson):
 
 
 def main():
-    print("=" * 70)
     print("GENERATION CARTE INTERACTIVE - DVFGeo")
-    print("=" * 70 + "\n")
 
     # Charger données
     df = load_data(INPUT_PATH)
@@ -137,9 +132,7 @@ def main():
     # Sauvegarder
     m.save(OUTPUT_FILE)
 
-    print("=" * 70)
     print("GENERATION COMPLETE")
-    print("=" * 70)
     print("\nFichier genere : {}".format(OUTPUT_FILE))
     print("Ouvrir dans navigateur pour voir la carte")
 

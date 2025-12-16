@@ -4,16 +4,14 @@
     - Prix moyen au m²
 """
 
-import os
+from src.config import paths
 import pandas as pd
 import folium
 import json
 
-INPUT_PATH = "../../../datas/scrapped/annonces_paris_clean_final.csv"
-GEOJSON_PATH = "../../../datas/arrondissements.geojson"
-OUTPUT_FILE = "../../../plots/scrapped/carte_annonces_paris.html"
-
-os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+INPUT_PATH = paths.data.scrapped/"annonces_paris_clean_final.csv"
+GEOJSON_PATH = paths.data/"arrondissements.geojson"
+OUTPUT_FILE = paths.plot.scrapped/"carte_annonces_paris.html"
 
 
 def load_data():
@@ -62,9 +60,7 @@ def load_geojson(filepath):
 
 def create_map(df, geojson):
     """Crée la carte Folium"""
-    print("=" * 70)
     print("Creation carte Folium")
-    print("=" * 70 + "\n")
 
     center = [48.8566, 2.3522]
     m = folium.Map(location=center, zoom_start=12, tiles='OpenStreetMap')
@@ -124,9 +120,7 @@ def create_map(df, geojson):
 
 
 def main():
-    print("=" * 70)
     print("CARTE INTERACTIVE - ANNONCES SCRAPPÉES")
-    print("=" * 70 + "\n")
 
     df = load_data()
     geojson = load_geojson(GEOJSON_PATH)
@@ -134,9 +128,6 @@ def main():
 
     m.save(OUTPUT_FILE)
 
-    print("=" * 70)
-    print("GENERATION COMPLETE")
-    print("=" * 70)
     print(f"\nFichier genere : {OUTPUT_FILE}")
 
 

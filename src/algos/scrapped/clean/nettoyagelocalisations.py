@@ -4,11 +4,11 @@ import pandas as pd
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
-BASE_DIR = os.path.join(PROJECT_ROOT, "datas", "scrapped")
+PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", ".."))
+BASE_DIR = os.path.join(PROJECT_ROOT, "data", "scrapped")
 
 INPUT_PATH = os.path.join(BASE_DIR, "annonces_paris_clean.csv")
-OUTPUT_PATH = os.path.join(BASE_DIR, "annonces_paris_clean_fina-l.csv")
+OUTPUT_PATH = os.path.join(BASE_DIR, "annonces_paris_clean_final.csv")
 
 print("Dossier CSV :", BASE_DIR)
 print("Fichier nettoyé d'entrée :", INPUT_PATH)

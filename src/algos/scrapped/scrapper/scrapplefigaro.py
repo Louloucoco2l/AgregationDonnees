@@ -14,7 +14,7 @@ BASE = "https://immobilier.lefigaro.fr/annonces/immobilier-vente-bien-paris.html
 
 driver.get(BASE)
 #---alerte --- ici il faut que taccept le boutton cookies du site --------------------------------------------
-with open("../../datas/scrapped/annonces_lefigaro_paris.csv", "w", newline="", encoding="utf-8") as f:
+with open("../../data/scrapped/annonces_lefigaro_paris.csv", "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f)
     w.writerow(["type", "prix", "prix_m2", "surface", "nb_pieces", "localisation", "details"])
 

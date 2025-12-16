@@ -6,16 +6,15 @@
     - Distribution par nombre de pièces
 """
 
-import os
+from src.config import paths
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-INPUT_PATH = "../../../datas/scrapped/annonces_paris_clean_final.csv"
-OUTPUT_DIR = "../../../plots/scrapped/"
+INPUT_PATH = paths.data.scrapped/"annonces_paris_clean_final.csv"
+OUTPUT_DIR = paths.plots.scrapped.path
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
@@ -58,7 +57,7 @@ def plot_distribution_prix_source(df):
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'distribution_prix_source.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'distribution_prix_source.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -89,7 +88,7 @@ def plot_classement_arrondissements(df):
                 va='center', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'classement_arrondissements.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'classement_arrondissements.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -116,7 +115,7 @@ def plot_heatmap_type_arrond(df):
                  fontsize=14, fontweight='bold')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'heatmap_type_arrondissement.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'heatmap_type_arrondissement.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -142,7 +141,7 @@ def plot_distribution_pieces(df):
     axes[1].set_title('Volume d\'annonces par nombre de pièces', fontsize=14, fontweight='bold')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'distribution_pieces.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'distribution_pieces.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -164,7 +163,7 @@ def plot_prix_surface(df):
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'prix_surface.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/ 'prix_surface.png', dpi=150)
     plt.close()
     print("OK\n")
 
@@ -188,21 +187,17 @@ def plot_volume_source(df):
                 ha='center', fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'volume_source.png'), dpi=150)
+    plt.savefig(OUTPUT_DIR/'volume_source.png', dpi=150)
     plt.close()
     print("OK\n")
 
 
 def main():
-    print("=" * 70)
     print("VISUALISATIONS - ANNONCES SCRAPPÉES")
-    print("=" * 70 + "\n")
 
     df = load_data()
 
-    print("=" * 70)
     print("CREATION GRAPHIQUES")
-    print("=" * 70 + "\n")
 
     plot_distribution_prix_source(df)
     plot_classement_arrondissements(df)
@@ -211,9 +206,6 @@ def main():
     plot_prix_surface(df)
     plot_volume_source(df)
 
-    print("=" * 70)
-    print("GENERATION COMPLETE")
-    print("=" * 70)
     print(f"\nFichiers generes dans: {OUTPUT_DIR}")
 
 

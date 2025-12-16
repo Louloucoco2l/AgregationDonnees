@@ -3,7 +3,7 @@ import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
-BASE_DIR = os.path.join(PROJECT_ROOT, "datas", "scrapped")
+BASE_DIR = os.path.join(PROJECT_ROOT, "data", "scrapped")
 
 INPUT_PATH = os.path.join(BASE_DIR, "annonces_paris_fusion_brut.csv")
 

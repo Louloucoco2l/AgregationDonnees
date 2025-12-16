@@ -8,12 +8,12 @@ import os
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 fichiers = [
-    "../../../datas/old_dataset/brut/valeursfoncieres-2020-s2.txt",
-    "../../../datas/old_dataset/brut/valeursfoncieres-2021.txt",
-    "../../../datas/old_dataset/brut/valeursfoncieres-2022.txt",
-    "../../../datas/old_dataset/brut/valeursfoncieres-2023.txt",
-    "../../../datas/old_dataset/brut/valeursfoncieres-2024.txt",
-    "../../../datas/old_dataset/brut/valeursfoncieres-2025-s1.txt"
+    "../../../../data/old_dataset/brut/valeursfoncieres-2020-s2.txt",
+    "../../../../data/old_dataset/brut/valeursfoncieres-2021.txt",
+    "../../../../data/old_dataset/brut/valeursfoncieres-2022.txt",
+    "../../../../data/old_dataset/brut/valeursfoncieres-2023.txt",
+    "../../../../data/old_dataset/brut/valeursfoncieres-2024.txt",
+    "../../../../data/old_dataset/brut/valeursfoncieres-2025-s1.txt"
 ]
 
 colonnes = [
@@ -62,7 +62,7 @@ colonnes = [
     "Surface terrain"
 ]
 
-fichier_sortie = os.path.join(base_dir, "../../datas/old_dataset/cleaned/valeursfoncieres-paris-2020-2025.2.csv")
+fichier_sortie = os.path.join(base_dir, "../../../../data/old_dataset/cleaned/valeursfoncieres-paris-2020-2025.2.csv")
 
 #traite par paquets, plus digeste
 chunksize = 500000

@@ -5,18 +5,18 @@
     Entrée: dvf_paris_2020-2025-exploitables.csv
 """
 
-import os
 import sys
 import pandas as pd
+from src.config import paths
 
-INPUT_PATH = "../../../datas/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
-OUTPUT_DIR = "../../../datas/DVF/analysis/"
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+INPUT_PATH = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-exploitables-clean.csv"
+OUTPUT_DIR = paths.data.dvf.analysis.path
+
 
 def load_and_prepare(filepath):
     """Charge et prépare les données"""
-    print(f"Chargement: {os.path.basename(filepath)}")
+    print(f"Chargement: {filepath.name}")
 
     df = pd.read_csv(filepath, sep=';', dtype=str, low_memory=False)
 
@@ -48,9 +48,7 @@ def load_and_prepare(filepath):
 
 def statistical_analysis(df):
     """Analyse statistique globale"""
-    print("="*70)
     print("ANALYSE STATISTIQUE GLOBALE")
-    print("="*70)
 
     stats = df['prix_m2'].describe()
     print(stats)
@@ -69,9 +67,7 @@ def statistical_analysis(df):
 
 def iqr_method(df):
     """Méthode IQR"""
-    print("\n" + "="*70)
     print("MÉTHODE IQR (Interquartile Range)")
-    print("="*70)
 
     Q1 = df['prix_m2'].quantile(0.25)
     Q3 = df['prix_m2'].quantile(0.75)
@@ -98,9 +94,7 @@ def iqr_method(df):
 
 def by_arrondissement(df):
     """Analyse spatiale par arrondissement"""
-    print("\n" + "="*70)
     print("ANALYSE PAR ARRONDISSEMENT")
-    print("="*70)
 
     districts = []
     for arr in sorted(df['arrondissement'].unique()):
@@ -128,9 +122,7 @@ def by_arrondissement(df):
 
 def by_type_local(df):
     """Analyse par type de local"""
-    print("\n" + "="*70)
     print("ANALYSE PAR TYPE DE LOCAL")
-    print("="*70)
 
     types = []
     for tlocal in df['type_local'].dropna().unique():
@@ -155,9 +147,7 @@ def by_type_local(df):
 
 def temporal_analysis(df):
     """Analyse temporelle"""
-    print("\n" + "="*70)
     print("ANALYSE TEMPORELLE (Année)")
-    print("="*70)
 
     temporal = []
     for year in sorted(df['annee'].dropna().unique()):
@@ -181,9 +171,7 @@ def temporal_analysis(df):
 
 def correlations_analysis(df):
     """Corrélations entre variables"""
-    print("\n" + "="*70)
     print("CORRÉLATIONS")
-    print("="*70)
 
     cols = ['prix_m2', 'valeur_fonciere', 'surface', 'nombre_pieces_principales', 'arrondissement']
     corr_data = df[cols].apply(pd.to_numeric, errors='coerce').dropna()
@@ -196,33 +184,31 @@ def correlations_analysis(df):
 
 def export_analysis(df, districts_df, types_df, temporal_df):
     """Exporte les analyses"""
-    print("\n" + "="*70)
     print("EXPORT")
-    print("="*70)
 
     # Export arrondissements
     districts_df.to_csv(
-        os.path.join(OUTPUT_DIR, "analysis_arrondissements.csv"),
+        OUTPUT_DIR/ "analysis_arrondissements.csv",
         sep=';', index=False, encoding='utf-8'
     )
     print(f"✓ analysis_arrondissements.csv")
 
     # Export types
     types_df.to_csv(
-        os.path.join(OUTPUT_DIR, "analysis_types_locaux.csv"),
+        OUTPUT_DIR/ "analysis_types_locaux.csv",
         sep=';', index=False, encoding='utf-8'
     )
-    print(f"✓ analysis_types_locaux.csv")
+    print(f"analysis_types_locaux.csv")
 
     # Export temporel
     temporal_df.to_csv(
-        os.path.join(OUTPUT_DIR, "analysis_temporel.csv"),
+        OUTPUT_DIR/ "analysis_temporel.csv",
         sep=';', index=False, encoding='utf-8'
     )
-    print(f"✓ analysis_temporel.csv")
+    print(f"analysis_temporel.csv")
 
 def main():
-    if not os.path.isfile(INPUT_PATH):
+    if not INPUT_PATH.isfile():
         print(f"Fichier introuvable: {INPUT_PATH}")
         sys.exit(1)
 
