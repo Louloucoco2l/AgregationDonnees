@@ -13,7 +13,7 @@ from src.config import paths
 
 INPUT_PATH = paths.data.DVF.geocodes.tableau/ "dvfgeo_tableau_arrondissements.csv"
 GEOJSON_PATH = paths.data.arrondissement/"arrondissements.geojson"
-OUTPUT_FILE = paths.plots.DVF/"carte_paris_heatmap.1.html"
+OUTPUT_FILE = paths.plots.DVF/"carte_paris_heatmap.html"
 
 
 

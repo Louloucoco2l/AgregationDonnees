@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_324bc51862d564ba9ac09e419db37974 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+    <div style="position: fixed; 
+                bottom: 50px; right: 50px; width: 250px; height: 180px; 
+                background-color: white; border:2px solid grey; z-index:9999; font-size:14px;
+                padding: 10px">
+    <p><b>Prix au m² (€)</b></p>
+    <p><i style="background: #00ff00; width: 20px; height: 10px; display: inline-block;"></i> Bon marché (9323)</p>
+    <p><i style="background: #ffff00; width: 20px; height: 10px; display: inline-block;"></i> Moyen (12160)</p>
+    <p><i style="background: #ff0000; width: 20px; height: 10px; display: inline-block;"></i> Cher (14997)</p>
+    </div>
+    
+    
+            <div class="folium-map" id="map_324bc51862d564ba9ac09e419db37974" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_324bc51862d564ba9ac09e419db37974 = L.map(
+                "map_324bc51862d564ba9ac09e419db37974",
+                {
+                    center: [48.8566, 2.3522],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_a7da95badb5bf4c178d291a7b5799068 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_a7da95badb5bf4c178d291a7b5799068.addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+            var circle_76b14485df6109ad19e6f6dc7da1dc7f = L.circle(
+                [48.8628, 2.3469],
+                {"bubblingMouseEvents": true, "color": "#aaff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#aaff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_e9de9b178154b5e339e919e26d36a2f6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8f52072ab448b15fb1ad660168bc6f5f = $(`<div id="html_8f52072ab448b15fb1ad660168bc6f5f" style="width: 100.0%; height: 100.0%;">         <b>7501 - 1e</b><br>         Prix moyen: 12446 €/m²<br>         Prix median: 12427 €/m²<br>         Transactions: 2,430<br>         Surface moyenne: 124 m²         </div>`)[0];
+                popup_e9de9b178154b5e339e919e26d36a2f6.setContent(html_8f52072ab448b15fb1ad660168bc6f5f);
+            
+        
+
+        circle_76b14485df6109ad19e6f6dc7da1dc7f.bindPopup(popup_e9de9b178154b5e339e919e26d36a2f6)
+        ;
+
+        
+    
+    
+            var circle_f670381c361ad086faa8a7c3d6c7ff64 = L.circle(
+                [48.8637, 2.3522],
+                {"bubblingMouseEvents": true, "color": "#47ff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#47ff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_8f8a40d9856c07d1b0af0dd7b01397de = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3be8b802954e6982682d056aa6990edb = $(`<div id="html_3be8b802954e6982682d056aa6990edb" style="width: 100.0%; height: 100.0%;">         <b>7502 - 2e</b><br>         Prix moyen: 11720 €/m²<br>         Prix median: 11521 €/m²<br>         Transactions: 3,220<br>         Surface moyenne: 90 m²         </div>`)[0];
+                popup_8f8a40d9856c07d1b0af0dd7b01397de.setContent(html_3be8b802954e6982682d056aa6990edb);
+            
+        
+
+        circle_f670381c361ad086faa8a7c3d6c7ff64.bindPopup(popup_8f8a40d9856c07d1b0af0dd7b01397de)
+        ;
+
+        
+    
+    
+            var circle_9320570676655c819d34a6015b5806a6 = L.circle(
+                [48.8606, 2.36],
+                {"bubblingMouseEvents": true, "color": "#99ff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#99ff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_53325875d459071a265de32098699e16 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d81312f0095b85027148bfabf304d31b = $(`<div id="html_d81312f0095b85027148bfabf304d31b" style="width: 100.0%; height: 100.0%;">         <b>7503 - 3e</b><br>         Prix moyen: 12323 €/m²<br>         Prix median: 12128 €/m²<br>         Transactions: 4,687<br>         Surface moyenne: 101 m²         </div>`)[0];
+                popup_53325875d459071a265de32098699e16.setContent(html_d81312f0095b85027148bfabf304d31b);
+            
+        
+
+        circle_9320570676655c819d34a6015b5806a6.bindPopup(popup_53325875d459071a265de32098699e16)
+        ;
+
+        
+    
+    
+            var circle_e6a447a545e6420b459a0b50844dd81b = L.circle(
+                [48.853, 2.3554],
+                {"bubblingMouseEvents": true, "color": "#ffe700", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffe700", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_11b160a46ea8b72f1b76041176056d1c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_251f9fb8a142e8e7a177aca96ddd1e31 = $(`<div id="html_251f9fb8a142e8e7a177aca96ddd1e31" style="width: 100.0%; height: 100.0%;">         <b>7504 - 4e</b><br>         Prix moyen: 13245 €/m²<br>         Prix median: 12964 €/m²<br>         Transactions: 3,258<br>         Surface moyenne: 73 m²         </div>`)[0];
+                popup_11b160a46ea8b72f1b76041176056d1c.setContent(html_251f9fb8a142e8e7a177aca96ddd1e31);
+            
+        
+
+        circle_e6a447a545e6420b459a0b50844dd81b.bindPopup(popup_11b160a46ea8b72f1b76041176056d1c)
+        ;
+
+        
+    
+    
+            var circle_7e5db34c577b62c606d13af37a157407 = L.circle(
+                [48.8467, 2.3523],
+                {"bubblingMouseEvents": true, "color": "#e4ff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#e4ff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_e208f790792166f39c66627552579523 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e22024e2aa8c9c46bf3f62dd9a5e6209 = $(`<div id="html_e22024e2aa8c9c46bf3f62dd9a5e6209" style="width: 100.0%; height: 100.0%;">         <b>7505 - 5e</b><br>         Prix moyen: 12875 €/m²<br>         Prix median: 12358 €/m²<br>         Transactions: 5,376<br>         Surface moyenne: 68 m²         </div>`)[0];
+                popup_e208f790792166f39c66627552579523.setContent(html_e22024e2aa8c9c46bf3f62dd9a5e6209);
+            
+        
+
+        circle_7e5db34c577b62c606d13af37a157407.bindPopup(popup_e208f790792166f39c66627552579523)
+        ;
+
+        
+    
+    
+            var circle_dc8e7425a82d7e052a2f3e18bac459d4 = L.circle(
+                [48.849, 2.3333],
+                {"bubblingMouseEvents": true, "color": "#ff0000", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff0000", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_ff523551dcce3fbe5026a3322b8f617c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9c78be91912f932e5742deda912d55a5 = $(`<div id="html_9c78be91912f932e5742deda912d55a5" style="width: 100.0%; height: 100.0%;">         <b>7506 - 6e</b><br>         Prix moyen: 14997 €/m²<br>         Prix median: 14656 €/m²<br>         Transactions: 4,964<br>         Surface moyenne: 88 m²         </div>`)[0];
+                popup_ff523551dcce3fbe5026a3322b8f617c.setContent(html_9c78be91912f932e5742deda912d55a5);
+            
+        
+
+        circle_dc8e7425a82d7e052a2f3e18bac459d4.bindPopup(popup_ff523551dcce3fbe5026a3322b8f617c)
+        ;
+
+        
+    
+    
+            var circle_4ec52eaaf42f530d35acb2d23b9d8c33 = L.circle(
+                [48.8549, 2.3103],
+                {"bubblingMouseEvents": true, "color": "#ff3b00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff3b00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_b6dbb4138bc6a8a14527fe5809a5ee9f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d5e66dedee96707362edbdc6430f41e9 = $(`<div id="html_d5e66dedee96707362edbdc6430f41e9" style="width: 100.0%; height: 100.0%;">         <b>7507 - 7e</b><br>         Prix moyen: 14546 €/m²<br>         Prix median: 14308 €/m²<br>         Transactions: 5,666<br>         Surface moyenne: 97 m²         </div>`)[0];
+                popup_b6dbb4138bc6a8a14527fe5809a5ee9f.setContent(html_d5e66dedee96707362edbdc6430f41e9);
+            
+        
+
+        circle_4ec52eaaf42f530d35acb2d23b9d8c33.bindPopup(popup_b6dbb4138bc6a8a14527fe5809a5ee9f)
+        ;
+
+        
+    
+    
+            var circle_e180abd1b1754191a14905e04b27963a = L.circle(
+                [48.8698, 2.3078],
+                {"bubblingMouseEvents": true, "color": "#e3ff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#e3ff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_7835e375b9b8e4fb888a2e580e04fbe0 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_38445b9d93448570fb65eceee1777781 = $(`<div id="html_38445b9d93448570fb65eceee1777781" style="width: 100.0%; height: 100.0%;">         <b>7508 - 8e</b><br>         Prix moyen: 12864 €/m²<br>         Prix median: 12361 €/m²<br>         Transactions: 5,216<br>         Surface moyenne: 154 m²         </div>`)[0];
+                popup_7835e375b9b8e4fb888a2e580e04fbe0.setContent(html_38445b9d93448570fb65eceee1777781);
+            
+        
+
+        circle_e180abd1b1754191a14905e04b27963a.bindPopup(popup_7835e375b9b8e4fb888a2e580e04fbe0)
+        ;
+
+        
+    
+    
+            var circle_52793dd0e60957083fc32fcc83cdc146 = L.circle(
+                [48.8771, 2.3382],
+                {"bubblingMouseEvents": true, "color": "#5cff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#5cff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_f69b9f26318449517ec31915d7fe80a1 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_afe5dd60ce8b13c240710307567a1a6e = $(`<div id="html_afe5dd60ce8b13c240710307567a1a6e" style="width: 100.0%; height: 100.0%;">         <b>7509 - 9e</b><br>         Prix moyen: 11876 €/m²<br>         Prix median: 11450 €/m²<br>         Transactions: 7,944<br>         Surface moyenne: 179 m²         </div>`)[0];
+                popup_f69b9f26318449517ec31915d7fe80a1.setContent(html_afe5dd60ce8b13c240710307567a1a6e);
+            
+        
+
+        circle_52793dd0e60957083fc32fcc83cdc146.bindPopup(popup_f69b9f26318449517ec31915d7fe80a1)
+        ;
+
+        
+    
+    
+            var circle_d29c573a9050697f62fe08a4b57d196f = L.circle(
+                [48.8734, 2.3609],
+                {"bubblingMouseEvents": true, "color": "#008300", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#008300", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_e1eb3c754bf7dfbccdd4269090b27bd6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_14429b44ef15b6c92cb4342955a0b9ed = $(`<div id="html_14429b44ef15b6c92cb4342955a0b9ed" style="width: 100.0%; height: 100.0%;">         <b>7510 - 10e</b><br>         Prix moyen: 10290 €/m²<br>         Prix median: 10016 €/m²<br>         Transactions: 10,411<br>         Surface moyenne: 72 m²         </div>`)[0];
+                popup_e1eb3c754bf7dfbccdd4269090b27bd6.setContent(html_14429b44ef15b6c92cb4342955a0b9ed);
+            
+        
+
+        circle_d29c573a9050697f62fe08a4b57d196f.bindPopup(popup_e1eb3c754bf7dfbccdd4269090b27bd6)
+        ;
+
+        
+    
+    
+            var circle_bf19bc3a981507645023087c22f538bf = L.circle(
+                [48.8636, 2.3801],
+                {"bubblingMouseEvents": true, "color": "#00fd00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00fd00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_22ac575d88bc4931ed4e670a651fdae5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_285f48022d30811c36bb03fa98c9a1de = $(`<div id="html_285f48022d30811c36bb03fa98c9a1de" style="width: 100.0%; height: 100.0%;">         <b>7511 - 11e</b><br>         Prix moyen: 11184 €/m²<br>         Prix median: 10596 €/m²<br>         Transactions: 15,396<br>         Surface moyenne: 73 m²         </div>`)[0];
+                popup_22ac575d88bc4931ed4e670a651fdae5.setContent(html_285f48022d30811c36bb03fa98c9a1de);
+            
+        
+
+        circle_bf19bc3a981507645023087c22f538bf.bindPopup(popup_22ac575d88bc4931ed4e670a651fdae5)
+        ;
+
+        
+    
+    
+            var circle_290605b4fd13ad4973ea55f30163cda0 = L.circle(
+                [48.8407, 2.3978],
+                {"bubblingMouseEvents": true, "color": "#00d700", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00d700", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_cfaec49515c29021c1a80fec4dcd4064 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8d57c1db8b121abc5b0e14b5a3b9383b = $(`<div id="html_8d57c1db8b121abc5b0e14b5a3b9383b" style="width: 100.0%; height: 100.0%;">         <b>7512 - 12e</b><br>         Prix moyen: 10907 €/m²<br>         Prix median: 10000 €/m²<br>         Transactions: 11,137<br>         Surface moyenne: 451 m²         </div>`)[0];
+                popup_cfaec49515c29021c1a80fec4dcd4064.setContent(html_8d57c1db8b121abc5b0e14b5a3b9383b);
+            
+        
+
+        circle_290605b4fd13ad4973ea55f30163cda0.bindPopup(popup_cfaec49515c29021c1a80fec4dcd4064)
+        ;
+
+        
+    
+    
+            var circle_c75a864ceca899344579e9b545766b40 = L.circle(
+                [48.8273, 2.3558],
+                {"bubblingMouseEvents": true, "color": "#007000", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#007000", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_f6df034d8af72121c9c7c085fd34dd8a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_c50096b0e3df94a26061636b5a63b1b3 = $(`<div id="html_c50096b0e3df94a26061636b5a63b1b3" style="width: 100.0%; height: 100.0%;">         <b>7513 - 13e</b><br>         Prix moyen: 10146 €/m²<br>         Prix median: 9474 €/m²<br>         Transactions: 9,409<br>         Surface moyenne: 298 m²         </div>`)[0];
+                popup_f6df034d8af72121c9c7c085fd34dd8a.setContent(html_c50096b0e3df94a26061636b5a63b1b3);
+            
+        
+
+        circle_c75a864ceca899344579e9b545766b40.bindPopup(popup_f6df034d8af72121c9c7c085fd34dd8a)
+        ;
+
+        
+    
+    
+            var circle_e6235c54463ebf44be46f2dbe625d36a = L.circle(
+                [48.8289, 2.3278],
+                {"bubblingMouseEvents": true, "color": "#00c700", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00c700", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_607391093ef3678e94154c031ddce8c8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f3a6c8aa9e5002fe50376e9945f806f6 = $(`<div id="html_f3a6c8aa9e5002fe50376e9945f806f6" style="width: 100.0%; height: 100.0%;">         <b>7514 - 14e</b><br>         Prix moyen: 10789 €/m²<br>         Prix median: 10215 €/m²<br>         Transactions: 9,737<br>         Surface moyenne: 79 m²         </div>`)[0];
+                popup_607391093ef3678e94154c031ddce8c8.setContent(html_f3a6c8aa9e5002fe50376e9945f806f6);
+            
+        
+
+        circle_e6235c54463ebf44be46f2dbe625d36a.bindPopup(popup_607391093ef3678e94154c031ddce8c8)
+        ;
+
+        
+    
+    
+            var circle_6441b58f0bcced095381d47b91e2bc59 = L.circle(
+                [48.8427, 2.2892],
+                {"bubblingMouseEvents": true, "color": "#00bf00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#00bf00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_d26066b123546662a401a6e285e7b655 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_44b2c6b427f677d7aac34aa9b6df7b88 = $(`<div id="html_44b2c6b427f677d7aac34aa9b6df7b88" style="width: 100.0%; height: 100.0%;">         <b>7515 - 15e</b><br>         Prix moyen: 10732 €/m²<br>         Prix median: 10213 €/m²<br>         Transactions: 19,630<br>         Surface moyenne: 106 m²         </div>`)[0];
+                popup_d26066b123546662a401a6e285e7b655.setContent(html_44b2c6b427f677d7aac34aa9b6df7b88);
+            
+        
+
+        circle_6441b58f0bcced095381d47b91e2bc59.bindPopup(popup_d26066b123546662a401a6e285e7b655)
+        ;
+
+        
+    
+    
+            var circle_00dd01c833e362397db1cdcbde156149 = L.circle(
+                [48.8565, 2.2777],
+                {"bubblingMouseEvents": true, "color": "#5aff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#5aff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_5abdd133aeb181c0529b9423027e480d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ba8ecfb8bd9524767e7c62dc02698afa = $(`<div id="html_ba8ecfb8bd9524767e7c62dc02698afa" style="width: 100.0%; height: 100.0%;">         <b>7516 - 16e</b><br>         Prix moyen: 11862 €/m²<br>         Prix median: 11458 €/m²<br>         Transactions: 15,235<br>         Surface moyenne: 108 m²         </div>`)[0];
+                popup_5abdd133aeb181c0529b9423027e480d.setContent(html_ba8ecfb8bd9524767e7c62dc02698afa);
+            
+        
+
+        circle_00dd01c833e362397db1cdcbde156149.bindPopup(popup_5abdd133aeb181c0529b9423027e480d)
+        ;
+
+        
+    
+    
+            var circle_efacb1075500067eac1ae7429f14037f = L.circle(
+                [48.8803, 2.2888],
+                {"bubblingMouseEvents": true, "color": "#1cff00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#1cff00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_6970853d912133739d951f57a43a7e06 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1895a1ae482236408adbf36d1c311da3 = $(`<div id="html_1895a1ae482236408adbf36d1c311da3" style="width: 100.0%; height: 100.0%;">         <b>7517 - 17e</b><br>         Prix moyen: 11402 €/m²<br>         Prix median: 10944 €/m²<br>         Transactions: 16,317<br>         Surface moyenne: 94 m²         </div>`)[0];
+                popup_6970853d912133739d951f57a43a7e06.setContent(html_1895a1ae482236408adbf36d1c311da3);
+            
+        
+
+        circle_efacb1075500067eac1ae7429f14037f.bindPopup(popup_6970853d912133739d951f57a43a7e06)
+        ;
+
+        
+    
+    
+            var circle_c56645db251117ae2fe0b3d3bd58eff2 = L.circle(
+                [48.8893, 2.3449],
+                {"bubblingMouseEvents": true, "color": "#005f00", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#005f00", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_491773ac56dbbf23b32ac2cab37d8f87 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_562b5baf212f499fa78854ee23707d7e = $(`<div id="html_562b5baf212f499fa78854ee23707d7e" style="width: 100.0%; height: 100.0%;">         <b>7518 - 18e</b><br>         Prix moyen: 10024 €/m²<br>         Prix median: 9583 €/m²<br>         Transactions: 18,799<br>         Surface moyenne: 78 m²         </div>`)[0];
+                popup_491773ac56dbbf23b32ac2cab37d8f87.setContent(html_562b5baf212f499fa78854ee23707d7e);
+            
+        
+
+        circle_c56645db251117ae2fe0b3d3bd58eff2.bindPopup(popup_491773ac56dbbf23b32ac2cab37d8f87)
+        ;
+
+        
+    
+    
+            var circle_eb55777b3a8b6ce3db869d3639a5e41b = L.circle(
+                [48.8925, 2.3885],
+                {"bubblingMouseEvents": true, "color": "#000000", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#000000", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_a80c9f6b7f8d6c5879fa298b6418d75f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f373c5c1d76191bfff60f5d0f52fb3f8 = $(`<div id="html_f373c5c1d76191bfff60f5d0f52fb3f8" style="width: 100.0%; height: 100.0%;">         <b>7519 - 19e</b><br>         Prix moyen: 9323 €/m²<br>         Prix median: 8800 €/m²<br>         Transactions: 10,287<br>         Surface moyenne: 80 m²         </div>`)[0];
+                popup_a80c9f6b7f8d6c5879fa298b6418d75f.setContent(html_f373c5c1d76191bfff60f5d0f52fb3f8);
+            
+        
+
+        circle_eb55777b3a8b6ce3db869d3639a5e41b.bindPopup(popup_a80c9f6b7f8d6c5879fa298b6418d75f)
+        ;
+
+        
+    
+    
+            var circle_8354ca23f18b67973aa002a53b6b2b56 = L.circle(
+                [48.8599, 2.4079],
+                {"bubblingMouseEvents": true, "color": "#003400", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#003400", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 800, "stroke": true, "weight": 2}
+            ).addTo(map_324bc51862d564ba9ac09e419db37974);
+        
+    
+        var popup_193da45f8920322496e02d3df7f0030d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_427c1acb3c569ade5fd2ec74d4b19471 = $(`<div id="html_427c1acb3c569ade5fd2ec74d4b19471" style="width: 100.0%; height: 100.0%;">         <b>7520 - 20e</b><br>         Prix moyen: 9705 €/m²<br>         Prix median: 9149 €/m²<br>         Transactions: 12,074<br>         Surface moyenne: 151 m²         </div>`)[0];
+                popup_193da45f8920322496e02d3df7f0030d.setContent(html_427c1acb3c569ade5fd2ec74d4b19471);
+            
+        
+
+        circle_8354ca23f18b67973aa002a53b6b2b56.bindPopup(popup_193da45f8920322496e02d3df7f0030d)
+        ;
+
+        
+    
+</script>
+</html>

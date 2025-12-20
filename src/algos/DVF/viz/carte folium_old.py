@@ -12,7 +12,7 @@ import folium
 from folium import plugins
 import json
 INPUT_PATH = "../../../data/DVF/geocodes/tableau/dvfgeo_tableau_arrondissements.csv"
-OUTPUT_FILE = "../../../plots/DVF/carte_paris_heatmap.html"
+OUTPUT_FILE = "../../../plots/DVF/carte_paris_heatmap_old.html"
 
 os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 
