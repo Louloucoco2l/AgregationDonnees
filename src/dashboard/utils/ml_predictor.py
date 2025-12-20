@@ -2,7 +2,6 @@ import pickle
 import pandas as pd
 import numpy as np
 import streamlit as st
-from typing import Dict, Any
 from src.config import paths
 
 MODELS_DIR = paths.models.path

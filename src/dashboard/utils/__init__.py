@@ -6,11 +6,10 @@ Expose les fonctions principales pour simplifier les imports, pas de chemin long
 """
 
 # Data loaders
-from .data_loader import (
-    load_dvf,
-    load_ircom,
-    load_annonces,
-    load_all_data
+from src.dashboard.utils.data_loader import (
+    load_dvf_data,
+    load_rfr_data,
+    load_annonces_data
 )
 
 # ML predictor
@@ -28,10 +27,9 @@ from .viz_builder import (
 
 __all__ = [
     # Data
-    'load_dvf',
-    'load_ircom',
-    'load_annonces',
-    'load_all_data',
+    'load_dvf_data',
+    'load_rfr_data',
+    'load_annonces_data',
 
     # ML
     'MLPredictor',

@@ -1,132 +1,95 @@
-"""
-Chargement des datasets avec cache Streamlit
-
-Fonctions :
-    - load_dvf() : Ventes DVF 2020-2025
-    - load_ircom() : Revenus fiscaux 2020-2023
-    - load_annonces() : Annonces scrappées
-    - load_all_data() : Charge tout en un dict
-"""
-
-import streamlit as st
 import pandas as pd
-from src.config import paths
+import streamlit as st
+from pathlib import Path
+import numpy as np
 
-DATA_DIR = paths.data.path
+# Détection de l'environnement (Local ou Serveur)
+try:
+    from src.config import paths
+
+    # Utilisation des chemins config si disponible
+    BASE_DIR = Path(__file__).resolve().parents[3]
+    PATH_DVF = BASE_DIR / "data/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv"
+    PATH_RFR = BASE_DIR / "data/fiscal/cleaned/ircom_2020-2023_paris_clean.csv"
+    PATH_ANNONCES = BASE_DIR / "data/scrapped/annonces_paris_clean_final.csv"
+except ImportError:
+    # Fallback chemins relatifs
+    PATH_DVF = Path("data/DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv")
+    PATH_RFR = Path("data/fiscal/cleaned/ircom_2020-2023_paris_clean.csv")
+    PATH_ANNONCES = Path("data/scrapped/annonces_paris_clean_final.csv")
 
 
-@st.cache_data(ttl=3600)
-def load_dvf():
+@st.cache_data
+def load_dvf_data():
+    """Charge les données DVF."""
+    if not PATH_DVF.exists():
+        return pd.DataFrame()
+
+    df = pd.read_csv(PATH_DVF, sep=';', low_memory=False)
+
+    # Standardisation Arrondissement (1-20)
+    if 'code_arrondissement' not in df.columns and 'arrondissement' in df.columns:
+        df.rename(columns={'arrondissement': 'code_arrondissement'}, inplace=True)
+
+    return df
+
+
+@st.cache_data
+def load_rfr_data(aggregate=True):
     """
-    Charge les ventes DVF géocodées nettoyées
+    Charge les données fiscales IRCOM.
 
-    Returns:
-        DataFrame avec ~191k lignes, colonnes :
-            - id_mutation, date_mutation, valeur_fonciere
-            - arrondissement, type_local, surface_reelle_bati
-            - nombre_pieces_principales, prix_m2
-            - latitude, longitude
+    Args:
+        aggregate (bool): Si True, retourne une ligne par arrondissement (moyennes).
+                          Si False, retourne les données détaillées par tranche RFR.
     """
-    return pd.read_csv(
-        DATA_DIR / "DVF/geocodes/cleaned/dvf_paris_2020-2025-exploitables-clean.csv",
-        sep=';'
-    )
+    if not PATH_RFR.exists():
+        return pd.DataFrame()
+
+    df = pd.read_csv(PATH_RFR, sep=';')
+
+    # Création colonne code_arrondissement (1-20) depuis code_commune (101-120)
+    # Le fichier montre code_commune=101 pour Paris 1er.
+    if 'code_commune' in df.columns:
+        df['code_arrondissement'] = df['code_commune'] % 100
+
+    if aggregate:
+        # On agrège pour avoir une vision par arrondissement/année (pour les cartes)
+        # RFR Moyen = Somme(RFR total du foyer) / Somme(Nb foyers)
+        df_agg = df.groupby(['annee', 'code_arrondissement']).agg({
+            'nb_foyers_fiscaux': 'sum',
+            'rfr_foyers_fiscaux': 'sum',
+            'impot_net_total': 'sum'
+        }).reset_index()
+
+        df_agg['revenu_fiscal_moyen'] = (df_agg['rfr_foyers_fiscaux'] / df_agg[
+            'nb_foyers_fiscaux']) * 1000000  # Si c'était en K€ vérifier unité
+        # Note: Dans ircom clean, rfr_foyers_fiscaux semble être la somme exacte ou en K€ ?
+        # Snippet: "rfr_foyers_fiscaux";"8001.877" pour 2684 foyers -> ~3€ ? Non, c'est en K€.
+        # Donc * 1000 pour avoir des euros.
+        df_agg['revenu_fiscal_moyen'] = (df_agg['rfr_foyers_fiscaux'] * 1000) / df_agg['nb_foyers_fiscaux']
+
+        return df_agg
+    else:
+        # On retourne les données brutes avec tranches pour l'analyse détaillée
+        return df
 
 
-@st.cache_data(ttl=3600)
-def load_ircom():
-    """
-    Charge les données fiscales IRCOM
+@st.cache_data
+def load_annonces_data():
+    """Charge les annonces scrappées."""
+    if not PATH_ANNONCES.exists():
+        return pd.DataFrame()
 
-    Returns:
-        DataFrame avec ~640 lignes (20 arr × 8 tranches × 4 ans), colonnes :
-            - annee, arrondissement, tranche_rfr
-            - nb_foyers_fiscaux, rfr_foyers_fiscaux
-            - impot_net_total
-    """
-    return pd.read_csv(
-        DATA_DIR / "fiscal/cleaned/ircom_2020-2023_paris_clean.csv",
-        sep=';'
-    )
+    df = pd.read_csv(PATH_ANNONCES, sep=';')
 
+    # Standardisation Arrondissement (75016 -> 16)
+    if 'localisation' in df.columns:
+        # Extraction des 2 derniers chiffres
+        df['code_arrondissement'] = df['localisation'].astype(str).str[-2:].astype(int)
 
-@st.cache_data(ttl=3600)
-def load_annonces():
-    """
-    Charge les annonces immobilières scrappées
+    # Renommage colonne type
+    if 'type' in df.columns and 'type_local' not in df.columns:
+        df.rename(columns={'type': 'type_local'}, inplace=True)
 
-    Returns:
-        DataFrame avec colonnes :
-            - source, titre, prix, surface, prix_m2
-            - type, pieces, arrondissement
-            - adresse, url, date_scraping
-    """
-    return pd.read_csv(
-        DATA_DIR / "scrapped/annonces_paris_clean_final.csv",
-        sep=';'
-    )
-
-
-@st.cache_data(ttl=3600)
-def load_dvf_tableau_arrondissements():
-    """
-    Charge le tableau pré-agrégé DVF par arrondissement
-
-    Returns:
-        DataFrame avec statistiques par arrondissement :
-            - prix_m2_moyen, prix_m2_median, prix_m2_std
-            - nombre_transactions, surface_moyenne
-            - latitude, longitude
-    """
-    return pd.read_csv(
-        DATA_DIR / "DVF/geocodes/tableau/dvfgeo_tableau_arrondissements.csv",
-        sep=';'
-    )
-
-
-@st.cache_data(ttl=3600)
-def load_dvf_tableau_temporel():
-    """
-    Charge le tableau pré-agrégé DVF par année et arrondissement
-
-    Returns:
-        DataFrame avec évolution temporelle :
-            - annee, arrondissement
-            - prix_m2_moyen, prix_m2_median
-            - nombre_transactions, surface_moyenne
-    """
-    return pd.read_csv(
-        DATA_DIR / "DVF/geocodes/tableau/dvfgeo_tableau_temporel.csv",
-        sep=';'
-    )
-
-
-@st.cache_data(ttl=3600)
-def load_dvf_tableau_type_local():
-    """
-    Charge le tableau pré-agrégé DVF par type de local et arrondissement
-
-    Returns:
-        DataFrame avec statistiques par type :
-            - arrondissement, type_local
-            - prix_m2_moyen, prix_m2_median
-            - nombre_transactions, surface_moyenne
-    """
-    return pd.read_csv(
-        DATA_DIR / "DVF/geocodes/tableau/dvfgeo_tableau_type_local.csv",
-        sep=';'
-    )
-
-
-def load_all_data():
-    """
-    Charge tous les datasets principaux
-
-    Returns:
-        Dict avec clés : 'dvf', 'ircom', 'annonces'
-    """
-    return {
-        'dvf': load_dvf(),
-        'ircom': load_ircom(),
-        'annonces': load_annonces()
-    }
+    return df
