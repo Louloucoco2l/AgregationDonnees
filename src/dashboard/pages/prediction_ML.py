@@ -1,25 +1,19 @@
 import sys
-from pathlib import Path
-
-# --- HACK PYTHONPATH ---
-root_path = str(Path(__file__).resolve().parents[3])
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
-
+from src.config import paths
 import streamlit as st
 import streamlit.components.v1 as components
 import folium
 import plotly.graph_objects as go
 from src.dashboard.utils.ml_predictor import get_predictor
+import requests
+API_URL = "http://127.0.0.1:8000/predict"
 
-st.set_page_config(page_title="Estimation", layout="wide")
+st.set_page_config(page_title="Estimation API", layout="wide")
 
-st.title("Estimation Intelligente")
-st.markdown("Entrez l'adresse précise pour une estimation basée sur la géolocalisation exacte.")
+st.title("Estimation via API")
+st.markdown(f"Ce dashboard interroge l'API locale (**{API_URL}**) qui loggue les requêtes en base de données.")
 
-predictor = get_predictor()
-
-# --- FORMULAIRE ---
+#FORMULAIRE
 with st.form("estimation_form"):
     col_addr, col_dummy = st.columns([2, 1])
     with col_addr:
@@ -33,89 +27,64 @@ with st.form("estimation_form"):
     with col3:
         annee = st.selectbox("Année de vente estimée", [2024, 2025, 2026], index=1)
 
-    submitted = st.form_submit_button("Lancer l'estimation", type="primary")
+    submitted = st.form_submit_button("Lancer l'estimation (API)", type="primary")
 
-# --- RÉSULTATS ---
+#APPEL API
 if submitted and adresse:
-    with st.spinner("Géocodage et calcul en cours..."):
-        result = predictor.estimate_complet(surface, pieces, annee, adresse)
+    with st.spinner("Communication avec le serveur d'IA..."):
+        try:
+            # Préparation du JSON à envoyer
+            payload = {
+                "surface": surface,
+                "pieces": pieces,
+                "annee": annee,
+                "adresse": adresse
+            }
 
-    if 'error' in result:
-        st.error(f"Erreur : {result['error']}")
-    else:
-        st.success(f"📍 Localisé : {result['geo_info']['label']}")
+            #envoi de la requête POST
+            response = requests.post(API_URL, json=payload)
 
-        # 1. KPIs Principaux
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Prix m² Estimé", f"{result['prix_m2_estime']:,.0f} €")
-        c2.metric("Prix Total", f"{result['prix_total_estime']:,.0f} €")
-        c3.metric("Confiance Modèle", f"{result['confiance']:.1f}% ({result['classification']})")
+            if response.status_code == 200:
+                result = response.json()  # Récupération de la réponse
 
-        st.divider()
+                #AFFICHAGE
+                if 'error' in result:  # Si l'API renvoie une erreur métier
+                    st.error(result['error'])
+                else:
+                    st.success(f"Localisé : {result['geo_info']['label']}")
+                    c1, c2, c3 = st.columns(3)
+                    c1.metric("Prix m²", f"{result['prix_m2_estime']:,.0f} €")
+                    c2.metric("Total", f"{result['prix_total_estime']:,.0f} €")
+                    c3.metric("Confiance", f"{result['confiance']:.1f}%")
 
-        # 2. Visuels (Carte & Jauge)
-        col_map, col_gauge = st.columns(2)
+                    st.divider()
 
-        with col_map:
-            st.markdown("##### Localisation")
-            lat, lon = result['geo_info']['latitude'], result['geo_info']['longitude']
-            m = folium.Map(location=[lat, lon], zoom_start=15)
-            folium.Marker(
-                [lat, lon],
-                popup=result['geo_info']['label'],
-                icon=folium.Icon(color="red", icon="home")
-            ).add_to(m)
+                    # Carte
+                    col_map, col_gauge = st.columns(2)
+                    with col_map:
+                        lat, lon = result['geo_info']['latitude'], result['geo_info']['longitude']
+                        m = folium.Map(location=[lat, lon], zoom_start=15)
+                        folium.Marker([lat, lon], popup=result['geo_info']['label'],
+                                      icon=folium.Icon(color="red", icon="home")).add_to(m)
+                        components.html(m._repr_html_(), height=300)
 
-            # Affichage stable via HTML
-            map_html = m._repr_html_()
-            components.html(map_html, height=300)
+                    # Jauge
+                    with col_gauge:
+                        fig = go.Figure(go.Indicator(
+                            mode="gauge+number", value=result['probabilite_cher'] * 100,
+                            title={'text': "Probabilité 'Cher'"},
+                            gauge={'axis': {'range': [0, 100]},
+                                   'bar': {'color': "#e74c3c" if result['probabilite_cher'] > 0.5 else "#2ecc71"}}
+                        ))
+                        fig.update_layout(height=250, margin=dict(l=20, r=20, t=30, b=20))
+                        st.plotly_chart(fig, use_container_width=True)
 
-        with col_gauge:
-            st.markdown("##### Probabilité 'Cher'")
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=result['probabilite_cher'] * 100,
-                title={'text': "Probabilité"},
-                gauge={
-                    'axis': {'range': [0, 100]},
-                    'bar': {'color': "#e74c3c" if result['probabilite_cher'] > 0.5 else "#2ecc71"},
-                    'steps': [{'range': [0, 50], 'color': "lightgray"}]
-                }
-            ))
-            fig.update_layout(height=250, margin=dict(l=20, r=20, t=30, b=20))
-            st.plotly_chart(fig, use_container_width=True)
+                    # Détails JSON
+                    with st.expander("Voir la réponse JSON brute de l'API"):
+                        st.json(result)
 
-            st.info(f"Fourchette : **{result['prix_total_min']:,.0f} €** - **{result['prix_total_max']:,.0f} €**")
+            else:
+                st.error(f"Erreur API ({response.status_code}) : {response.text}")
 
-        st.divider()
-
-        # 3. Détails Techniques & Comparaison (Restaurés)
-        st.subheader("Détails de l'estimation")
-
-        col_probs, col_json = st.columns(2)
-
-        with col_probs:
-            st.markdown("**Comparaison des probabilités**")
-            # Graphique à barres comparatif
-            fig2 = go.Figure(data=[
-                go.Bar(
-                    x=['Bon marché', 'Cher'],
-                    y=[result['probabilite_bon_marche'], result['probabilite_cher']],
-                    marker_color=['#2ecc71', '#e74c3c'],
-                    text=[f"{result['probabilite_bon_marche']*100:.1f}%", f"{result['probabilite_cher']*100:.1f}%"],
-                    textposition='auto',
-                )
-            ])
-            fig2.update_layout(
-                yaxis_title="Probabilité",
-                yaxis_range=[0, 1],
-                height=300,
-                margin=dict(l=20, r=20, t=30, b=20)
-            )
-            st.plotly_chart(fig2, use_container_width=True)
-
-        with col_json:
-            st.markdown("**Données brutes du modèle**")
-            # Affichage JSON dans un expander ouvert par défaut ou non
-            with st.expander("Voir le JSON complet", expanded=True):
-                st.json(result)
+        except requests.exceptions.ConnectionError:
+            st.error("Impossible de contacter l'API. Vérifiez que `src/api/main.py` est bien lancé.")

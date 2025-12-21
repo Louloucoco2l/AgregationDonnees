@@ -6,7 +6,7 @@ import pickle
 from src.config import paths
 
 INPUT_PATH = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-exploitables-clean.csv"
-OUTPUT_DIR = paths/"models"
+OUTPUT_DIR = paths.models.path
 
 def load_data(filepath):
     print(f"Chargement: {filepath.name}")
