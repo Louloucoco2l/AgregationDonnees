@@ -1,194 +1,121 @@
 import sys
 from pathlib import Path
 
-# Ajouter src/ au PYTHONPATH
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+# --- HACK PYTHONPATH ---
+root_path = str(Path(__file__).resolve().parents[3])
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 
 import streamlit as st
-from src.dashboard.utils.ml_predictor import get_predictor
+import streamlit.components.v1 as components
+import folium
 import plotly.graph_objects as go
+from src.dashboard.utils.ml_predictor import get_predictor
 
-st.set_page_config(page_title="Prédiction ML", layout="wide")
+st.set_page_config(page_title="Estimation", layout="wide")
 
-st.title("Estimation de Prix Immobilier")
-st.markdown("Utilisez nos modèles ML pour estimer le prix d'un bien")
+st.title("Estimation Intelligente")
+st.markdown("Entrez l'adresse précise pour une estimation basée sur la géolocalisation exacte.")
 
-# Charger le predictor (avec cache)
 predictor = get_predictor()
 
-# Formulaire de saisie
-with st.form("prediction_form"):
-    col1, col2 = st.columns(2)
+# --- FORMULAIRE ---
+with st.form("estimation_form"):
+    col_addr, col_dummy = st.columns([2, 1])
+    with col_addr:
+        adresse = st.text_input("Adresse du bien (Paris)", value="10 rue de Rivoli, 75001 Paris")
 
+    col1, col2, col3 = st.columns(3)
     with col1:
-        surface = st.number_input(
-            "Surface (m²)",
-            min_value=10.0,
-            max_value=300.0,
-            value=65.0,
-            step=5.0
-        )
-
-        arrondissement = st.selectbox(
-            "Arrondissement",
-            options=list(range(1, 21)),
-            index=10  # 11e par défaut
-        )
-
-        type_local = st.selectbox(
-            "Type de bien",
-            options=[
-                "Appartement",
-                "Maison",
-                "Local industriel. commercial ou assimilé",
-                "Dépendance"
-            ]
-        )
-
+        surface = st.number_input("Surface (m²)", min_value=9.0, max_value=300.0, value=50.0)
     with col2:
-        nombre_pieces = st.number_input(
-            "Nombre de pièces",
-            min_value=1,
-            max_value=10,
-            value=3
-        )
-
-        annee = st.selectbox(
-            "Année",
-            options=list(range(2020, 2026)),
-            index=5  # 2025 par défaut
-        )
-
-        mois = st.slider(
-            "Mois",
-            min_value=1,
-            max_value=12,
-            value=6
-        )
-
-    submitted = st.form_submit_button("Estimer le prix", type="primary")
-
-# Traitement de la prédiction
-if submitted:
-    with st.spinner("Calcul en cours..."):
-        # Appeler le wrapper
-        result = predictor.estimate_complet(
-            surface_m2=surface,
-            code_arrondissement=arrondissement,
-            type_local=type_local,
-            nb_pieces=nombre_pieces,
-            annee=annee,
-            mois=mois
-        )
-
-    # Affichage des résultats
-    st.success("✓ Estimation terminée")
-
-    # KPIs principaux
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        st.metric(
-            "Prix/m² estimé",
-            f"{result['prix_m2_estime']:,.0f} €",
-            delta=None
-        )
-
-    with col2:
-        st.metric(
-            "Prix total estimé",
-            f"{result['prix_total_estime']:,.0f} €",
-            delta=None
-        )
-
+        pieces = st.number_input("Nombre de pièces", min_value=1, max_value=10, value=2)
     with col3:
-        st.metric(
-            "Classification",
-            result['classification'],
-            delta=None
-        )
+        annee = st.selectbox("Année de vente estimée", [2024, 2025, 2026], index=1)
 
-    with col4:
-        st.metric(
-            "Confiance",
-            f"{result['confiance']:.1f}%",
-            delta=None
-        )
+    submitted = st.form_submit_button("Lancer l'estimation", type="primary")
 
-    # Intervalle de confiance
-    st.markdown("---")
-    st.subheader("Intervalle de confiance (95%)")
+# --- RÉSULTATS ---
+if submitted and adresse:
+    with st.spinner("Géocodage et calcul en cours..."):
+        result = predictor.estimate_complet(surface, pieces, annee, adresse)
 
-    col1, col2 = st.columns(2)
+    if 'error' in result:
+        st.error(f"Erreur : {result['error']}")
+    else:
+        st.success(f"📍 Localisé : {result['geo_info']['label']}")
 
-    with col1:
-        st.info(f"""
-        **Prix/m²**
-        - Minimum : {result['prix_m2_min']:,.0f} €
-        - Estimé : {result['prix_m2_estime']:,.0f} €
-        - Maximum : {result['prix_m2_max']:,.0f} €
-        """)
+        # 1. KPIs Principaux
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Prix m² Estimé", f"{result['prix_m2_estime']:,.0f} €")
+        c2.metric("Prix Total", f"{result['prix_total_estime']:,.0f} €")
+        c3.metric("Confiance Modèle", f"{result['confiance']:.1f}% ({result['classification']})")
 
-    with col2:
-        st.info(f"""
-        **Prix total**
-        - Minimum : {result['prix_total_min']:,.0f} €
-        - Estimé : {result['prix_total_estime']:,.0f} €
-        - Maximum : {result['prix_total_max']:,.0f} €
-        """)
+        st.divider()
 
-    # Graphique intervalle de confiance
-    fig = go.Figure()
+        # 2. Visuels (Carte & Jauge)
+        col_map, col_gauge = st.columns(2)
 
-    fig.add_trace(go.Bar(
-        x=['Prix/m²'],
-        y=[result['prix_m2_estime']],
-        error_y=dict(
-            type='data',
-            symmetric=False,
-            array=[result['prix_m2_max'] - result['prix_m2_estime']],
-            arrayminus=[result['prix_m2_estime'] - result['prix_m2_min']]
-        ),
-        marker_color='#3498db',
-        name='Estimation'
-    ))
+        with col_map:
+            st.markdown("##### Localisation")
+            lat, lon = result['geo_info']['latitude'], result['geo_info']['longitude']
+            m = folium.Map(location=[lat, lon], zoom_start=15)
+            folium.Marker(
+                [lat, lon],
+                popup=result['geo_info']['label'],
+                icon=folium.Icon(color="red", icon="home")
+            ).add_to(m)
 
-    fig.update_layout(
-        title="Intervalle de confiance du prix/m²",
-        yaxis_title="Prix/m² (€)",
-        template="plotly_white",
-        height=400
-    )
+            # Affichage stable via HTML
+            map_html = m._repr_html_()
+            components.html(map_html, height=300)
 
-    st.plotly_chart(fig, width='stretch')
+        with col_gauge:
+            st.markdown("##### Probabilité 'Cher'")
+            fig = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=result['probabilite_cher'] * 100,
+                title={'text': "Probabilité"},
+                gauge={
+                    'axis': {'range': [0, 100]},
+                    'bar': {'color': "#e74c3c" if result['probabilite_cher'] > 0.5 else "#2ecc71"},
+                    'steps': [{'range': [0, 50], 'color': "lightgray"}]
+                }
+            ))
+            fig.update_layout(height=250, margin=dict(l=20, r=20, t=30, b=20))
+            st.plotly_chart(fig, use_container_width=True)
 
-    # Probabilités de classification
-    st.markdown("---")
-    st.subheader("Probabilités de classification")
+            st.info(f"Fourchette : **{result['prix_total_min']:,.0f} €** - **{result['prix_total_max']:,.0f} €**")
 
-    fig2 = go.Figure(data=[
-        go.Bar(
-            x=['Bon marché', 'Cher'],
-            y=[result['probabilite_bon_marche'], result['probabilite_cher']],
-            marker_color=['#2ecc71', '#e74c3c'],
-            text=[
-                f"{result['probabilite_bon_marche'] * 100:.1f}%",
-                f"{result['probabilite_cher'] * 100:.1f}%"
-            ],
-            textposition='outside'
-        )
-    ])
+        st.divider()
 
-    fig2.update_layout(
-        title="Probabilités de classification",
-        yaxis_title="Probabilité",
-        yaxis_tickformat='.0%',
-        template="plotly_white",
-        height=400
-    )
+        # 3. Détails Techniques & Comparaison (Restaurés)
+        st.subheader("Détails de l'estimation")
 
-    st.plotly_chart(fig2, width='stretch')
+        col_probs, col_json = st.columns(2)
 
-    # Détails techniques
-    with st.expander("Détails techniques"):
-        st.json(result)
+        with col_probs:
+            st.markdown("**Comparaison des probabilités**")
+            # Graphique à barres comparatif
+            fig2 = go.Figure(data=[
+                go.Bar(
+                    x=['Bon marché', 'Cher'],
+                    y=[result['probabilite_bon_marche'], result['probabilite_cher']],
+                    marker_color=['#2ecc71', '#e74c3c'],
+                    text=[f"{result['probabilite_bon_marche']*100:.1f}%", f"{result['probabilite_cher']*100:.1f}%"],
+                    textposition='auto',
+                )
+            ])
+            fig2.update_layout(
+                yaxis_title="Probabilité",
+                yaxis_range=[0, 1],
+                height=300,
+                margin=dict(l=20, r=20, t=30, b=20)
+            )
+            st.plotly_chart(fig2, use_container_width=True)
+
+        with col_json:
+            st.markdown("**Données brutes du modèle**")
+            # Affichage JSON dans un expander ouvert par défaut ou non
+            with st.expander("Voir le JSON complet", expanded=True):
+                st.json(result)

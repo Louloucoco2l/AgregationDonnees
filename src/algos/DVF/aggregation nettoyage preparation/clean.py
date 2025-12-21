@@ -82,108 +82,47 @@ def remove_empty_columns(df):
 
 
 def analyze_distribution(df):
-    """Analyse distribution pour détecter les vrais outliers"""
-    print("ANALYSE DE DISTRIBUTION - DÉTECTION OUTLIERS")
-
-    prix = df['prix_m2'].dropna()
-
-    # Percentiles clés
-    p01 = prix.quantile(0.01)
-    p05 = prix.quantile(0.05)
-    p10 = prix.quantile(0.10)
-    p50 = prix.quantile(0.50)
-    p75 = prix.quantile(0.75)
-    p90 = prix.quantile(0.90)
-    p95 = prix.quantile(0.95)
-    p99 = prix.quantile(0.99)
-    p999 = prix.quantile(0.999)
-
-    print(f"\nPercentiles clés:")
-    print(f"  1er: {p01:>15,.0f}€/m²")
-    print(f"  5e: {p05:>15,.0f}€/m²")
-    print(f"  10e: {p10:>15,.0f}€/m²")
-    print(f"  50e (médiane): {p50:>15,.0f}€/m²")
-    print(f"  75e: {p75:>15,.0f}€/m²")
-    print(f"  90e: {p90:>15,.0f}€/m²")
-    print(f"  95e: {p95:>15,.0f}€/m²")
-    print(f"  99e: {p99:>15,.0f}€/m²")
-    print(f"  99.9e: {p999:>15,.0f}€/m²")
-
-    # Méthode IQR
-    Q1 = prix.quantile(0.25)
-    Q3 = prix.quantile(0.75)
+    #sur les donnees appartement seulement
+    df_app = df[df['type_local'] == 'Appartement'].dropna(subset=['prix_m2'])
+    Q1 = df_app['prix_m2'].quantile(0.25)
+    Q3 = df_app['prix_m2'].quantile(0.75)
     IQR = Q3 - Q1
-
-    # Seuil haut = Q3 + 3×IQR
-    seuil_haut_iqr = Q3 + 3 * IQR
-
-    print(f"\nMÉTHODE IQR:")
-    print(f"  Q1 (25e): {Q1:>15,.0f}€/m²")
-    print(f"  Q3 (75e): {Q3:>15,.0f}€/m²")
-    print(f"  IQR: {IQR:>15,.0f}€/m²")
-    print(f"  Seuil haut (Q3 + 3×IQR): {seuil_haut_iqr:>15,.0f}€/m²")
-
-    # Méthode MAD
-    median = prix.median()
-    mad = np.median(np.abs(prix - median))
-    seuil_mad_high = median + 3.5 * mad
-
-    print(f"\nMÉTHODE MAD (Median Absolute Deviation):")
-    print(f"  Médiane: {median:>15,.0f}€/m²")
-    print(f"  MAD: {mad:>15,.0f}€/m²")
-    print(f"  Seuil haut (Médiane + 3.5×MAD): {seuil_mad_high:>15,.0f}€/m²")
-
-    # Seuil final haut
-    seuil_haut = max(seuil_haut_iqr, seuil_mad_high)
-
-    # Seuil bas fixe (réaliste pour Paris)
-    seuil_bas = SEUIL_PRIX_M2_MIN
-
-    print(f"\nSEUILS FINAUX RETENUS:")
-    print(f"  Seuil BAS: {seuil_bas:>15,.0f}€/m² (fixe - prix minimum réaliste Paris)")
-    print(f"  Seuil HAUT: {seuil_haut:>15,.0f}€/m² (max IQR/MAD)")
-
-    return seuil_bas, seuil_haut
-
-
-# Dans clean.py, modifiez la fonction apply_filter
+    seuil_haut = Q3 + 3 * IQR
+    return SEUIL_PRIX_M2_MIN, seuil_haut
 
 def apply_filter(df, seuil_bas, seuil_haut):
-    """Applique le filtrage: exclut aberrantes basses/hautes ET types de biens non pertinents"""
-    print("FILTRAGE - ABERRANTES ET TYPES DE BIENS")
-
-    # 1. Filtre Type de Local : On ne garde que les Appartements
-    # Les Maisons à Paris sont des outliers statistiques (hôtels particuliers, impasses privées...)
-    # Les Dépendances/Locaux commerciaux polluent le prix au m² habitable.
+    print("\nFILTRAGE STRICT")
     mask_type = df['type_local'] == 'Appartement'
+    mask_surf = (df['surface_m2_retenue'] >= 9) & (df['surface_m2_retenue'] <= 300)
+    mask_prix = (df['prix_m2'] >= seuil_bas) & (df['prix_m2'] <= seuil_haut) & (
+                df['valeur_fonciere'] >= SEUIL_VALEUR_MIN)
 
-    # 2. Filtre Surface : On exclut les "micro-surfaces" (< 9m²) souvent des chambres de bonne ou WC
-    # et les très grands plateaux (> 300m²) qui sont des marchés de niche.
-    mask_surface = (df['surface_m2_retenue'] >= 9) & (df['surface_m2_retenue'] <= 300)
+    #masque Global,
+    mask_valid = mask_type & mask_surf & mask_prix & df['prix_m2'].notna()
 
-    # 3. Filtres Prix (existants)
-    mask_trop_bas = (df['prix_m2'] < seuil_bas) | (df['valeur_fonciere'] < SEUIL_VALEUR_MIN)
-    mask_trop_haut = df['prix_m2'] > seuil_haut
+    df_clean = df[mask_valid].copy()
+    print(f"Total initial: {len(df)}")
+    print(f"Après filtre Appartement & Surface: {len(df[mask_type & mask_surf])}")
+    print(f"Final (Clean): {len(df_clean)}")
 
-    # Combinaison
-    mask_normal = mask_type & mask_surface & ~mask_trop_bas & ~mask_trop_haut & df['prix_m2'].notna()
+    # Pour les exports aberrants, on garde tout ce qui n'est pas clean
+    df_aberrantes = df[~mask_valid].copy()
 
-    df_normal = df[mask_normal].copy()
 
-    # Pour info (stats des rejets)
-    n_total = len(df)
-    n_kept = len(df_normal)
-    print(f"  Total initial : {n_total}")
-    print(f"  Après filtre Appartement & Surface (9-300m²) : {len(df[mask_type & mask_surface])}")
-    print(f"  Final (après filtre prix) : {n_kept} ({n_kept / n_total * 100:.1f}%)")
+    #separer aberrantes en basses et hautes selon prix_m2
+    cond_basse = df_aberrantes['prix_m2'].notna() & (df_aberrantes['prix_m2'] < seuil_bas)
+    cond_haute = df_aberrantes['prix_m2'].notna() & (df_aberrantes['prix_m2'] > seuil_haut)
 
-    # On retourne des DFs vides pour les aberrantes pour ne pas casser la signature,
-    # ou on filtre juste les aberrantes du dataset 'normal' pour l'export.
-    # Pour simplifier ici, on garde la logique de retour mais on sait que df_normal est purifié.
-    df_aberrantes_basse = df[mask_trop_bas].copy()  # Juste pour info
-    df_aberrantes_haute = df[mask_trop_haut].copy()
+    df_aberrantes_basse = df_aberrantes[cond_basse].copy()
+    df_aberrantes_haute = df_aberrantes[cond_haute].copy()
 
-    return df_normal, df_aberrantes_basse, df_aberrantes_haute
+    #on garde le reste (valeurs NA ou invalides) dans les aberrantes basses
+    reste = df_aberrantes[~(cond_basse | cond_haute)].copy()
+    if len(reste):
+        # on considère ces cas comme basses (ventes symboliques / autres anomalies)
+        df_aberrantes_basse = pd.concat([df_aberrantes_basse, reste], ignore_index=True)
+
+    return df_clean, df_aberrantes_basse, df_aberrantes_haute
 
 def analyze_aberrantes_basses(df_aberrantes):
     """Analyse les aberrantes basses"""
@@ -307,29 +246,17 @@ def main():
         sys.exit(1)
 
     print("NETTOYAGE old_dataset GÉOCODÉES - FILTRAGE COMPLET (HAUT + BAS)")
-
-    # Charger et préparer
     df = load_and_prepare(INPUT_PATH)
-
-    # Supprimer colonnes vides
     df = remove_empty_columns(df)
-
-    # Analyser distribution et trouver seuils
+    #analyser distribution et trouver seuils
     seuil_bas, seuil_haut = analyze_distribution(df)
-
-    # Filtrage
     df_normal, df_aberrantes_basse, df_aberrantes_haute = apply_filter(df, seuil_bas, seuil_haut)
 
-    # Analyser aberrantes basses
+    #analyses
     analyze_aberrantes_basses(df_aberrantes_basse)
-
-    # Analyser aberrantes hautes
     analyze_aberrantes_hautes(df_aberrantes_haute)
-
-    # Analyser normales
     analyze_normal(df_normal)
 
-    # Export
     if export_data(df_normal, df_aberrantes_basse, df_aberrantes_haute):
         print("NETTOYAGE COMPLÉTÉ AVEC SUCCÈS")
     else:

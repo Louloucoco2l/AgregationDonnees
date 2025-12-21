@@ -6,7 +6,7 @@ Expose les fonctions principales pour simplifier les imports, pas de chemin long
 """
 
 # Data loaders
-from src.dashboard.utils.data_loader import (
+from .data_loader import (
     load_dvf_data,
     load_rfr_data,
     load_annonces_data

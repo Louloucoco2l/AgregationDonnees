@@ -1,7 +1,14 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from src.dashboard.utils.data_loader import load_dvf_data, load_rfr_data, load_annonces_data
+
+import sys
+import pathlib
+root_path = str(pathlib.Path(__file__).resolve().parents[2])
+if root_path not in sys.path:
+    sys.path.append(root_path)
+from utils import load_dvf_data, load_rfr_data, load_annonces_data
+
 
 st.set_page_config(page_title="DVF Paris - Accueil", layout="wide")
 
@@ -78,4 +85,4 @@ if not df_dvf.empty and not df_ads.empty:
                  color_discrete_map={f'Ventes ({last_year})': '#2E86C1', 'Annonces (Actuel)': '#E74C3C'},
                  labels={'prix_m2': 'Prix Médian (€/m²)', 'code_arrondissement': 'Arrondissement'},
                  height=500)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')

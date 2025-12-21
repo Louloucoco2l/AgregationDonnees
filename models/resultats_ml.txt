@@ -2,9 +2,26 @@ RESULTATS MODELES ML - DVFGeo (Gradient Boosting)
 ===============================================
 
 ESTIMATION PRIX (HistGradientBoostingRegressor)
-R² Test: 0.2485
-MAE Test: 2328.48€/m²
+R² Test: 0.2728
+MAE Test: 2079.86€/m²
+
+TOP 15 FEATURES IMPORTATNTES :
+  longitude                : 0.2948 (±0.0029)
+  dist_center              : 0.2433 (±0.0014)
+  latitude                 : 0.1324 (±0.0011)
+  log_surface_m2           : 0.0905 (±0.0018)
+  nb_pieces_fill           : 0.0508 (±0.0011)
+  annee_norm               : 0.0445 (±0.0002)
+  arrond_7                 : 0.0128 (±0.0003)
+  arrond_16                : 0.0041 (±0.0006)
+  arrond_8                 : 0.0029 (±0.0001)
+  arrond_20                : 0.0026 (±0.0002)
+  arrond_11                : 0.0019 (±0.0002)
+  arrond_6                 : 0.0017 (±0.0002)
+  arrond_3                 : 0.0015 (±0.0002)
+  arrond_15                : 0.0008 (±0.0001)
+  arrond_4                 : 0.0006 (±0.0001)
 
 CLASSIFICATION (LogisticRegression)
-Accuracy Test: 0.7005
-ROC-AUC: 0.7671
+Accuracy Test: 0.7024
+ROC-AUC: 0.7690

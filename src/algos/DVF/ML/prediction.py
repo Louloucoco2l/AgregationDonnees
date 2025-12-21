@@ -56,16 +56,16 @@ def train_model_principal(X_train, X_test, y_train, y_test, feature_names):
     """
     print("MODELE PRINCIPAL (HistGradientBoosting) - Prediction Prix/m²")
 
-    print("Entrainement en cours...")
+    print("Entrainement en cours")
 
     #boite noire un peu
     model = HistGradientBoostingRegressor(
         max_iter=1000,
-        learning_rate=0.05,  # On revient à une vitesse modérée pour la stabilité
-        max_leaf_nodes=63,  # Compromis (31 était trop simple, 127 trop complexe)
+        learning_rate=0.05,  #vitesse modérée pour la stabilité
+        max_leaf_nodes=63,  # Compromis 31 trop simple, 127 trop complexe
         max_depth=None,
-        min_samples_leaf=20,  # On exige un peu plus de volume pour valider un prix
-        l2_regularization=0.5,  # On remet un peu de frein pour éviter le par-cœur
+        min_samples_leaf=20,  #plus de points necessaires pour valider un prix
+        l2_regularization=0.5,  #un peu de frein pour éviter le par-cœur
         early_stopping=True,
         random_state=42,
         verbose=0
@@ -91,7 +91,7 @@ def train_model_principal(X_train, X_test, y_train, y_test, feature_names):
     print(f"Test RMSE: {rmse_test:.2f}€/m²")
 
     # HGBR n'a pas de .feature_importances_ direct fiable, on utilise la permutation
-    print("\nCalcul de l'importance des features (Permutation)")
+    print("\nCalcul de l'importance des features (Permutation)...")
     result = permutation_importance(
         model, X_test, y_test, n_repeats=5, random_state=42, n_jobs=-1
     )
@@ -102,14 +102,18 @@ def train_model_principal(X_train, X_test, y_train, y_test, feature_names):
         'std': result.importances_std
     }).sort_values('importance', ascending=False).head(15)
 
-    print("\nTop 15 Features les plus importantes :")
+    #creer le texte pour l export txt
+    importance_text = "\nTOP 15 FEATURES IMPORTATNTES :\n"
+    print(importance_text)
     for idx, row in importances.iterrows():
-        print(f"  {row['feature']:<25}: {row['importance']:.4f} (±{row['std']:.4f})")
+        line = f"  {row['feature']:<25}: {row['importance']:.4f} (±{row['std']:.4f})"
+        print(line)
+        importance_text += line + "\n"
 
-    # --- Visualisation ---
+    #Visualisation
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Plot Train
+    #plot Train
     axes[0].scatter(y_train, y_train_pred, alpha=0.1, s=2, color='#3498db', label='Train')
     axes[0].plot([y_train.min(), y_train.max()], [y_train.min(), y_train.max()], 'r--', lw=2, label='Idéal')
     axes[0].set_xlabel('Prix Réel (€/m²)')
@@ -118,7 +122,7 @@ def train_model_principal(X_train, X_test, y_train, y_test, feature_names):
     axes[0].grid(True, alpha=0.3)
     axes[0].legend()
 
-    # Plot Test
+    #plot Test
     axes[1].scatter(y_test, y_test_pred, alpha=0.15, s=3, color='#e67e22', label='Test')
     axes[1].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2, label='Idéal')
     axes[1].set_xlabel('Prix Réel (€/m²)')
@@ -131,12 +135,12 @@ def train_model_principal(X_train, X_test, y_train, y_test, feature_names):
     plt.savefig(OUTPUT_DIR / 'regression_lineaire.png', dpi=150) # On garde le nom générique pour l'affichage
     plt.close()
 
-    # On sauvegarde sous le nom 'model_linear_regression.pkl' pour que le dashboard actuel fonctionne sans modification, même si c'est plus le bon nom
+    #sauvegarde sous le nom 'model_linear_regression.pkl' pour que le dashboard actuel fonctionne sans modification, même si c'est plus le bon nom
     with open(OUTPUT_DIR / 'model_linear_regression.pkl', 'wb') as f:
         pickle.dump(model, f)
         print("\nModèle sauvegardé sous 'model_linear_regression.pkl'")
 
-    return model, r2_test, mae_test
+    return model, r2_test, mae_test, importance_text
 
 
 def logistic_regression(X_train, X_test, y_train, y_test, feature_names):
@@ -197,7 +201,7 @@ def logistic_regression(X_train, X_test, y_train, y_test, feature_names):
     return model, acc_test, roc_auc
 
 
-def export_results(r2, mae, acc, roc_auc):
+def export_results(r2, mae, acc, roc_auc, importance_text=""):
     """Exporte résumé résultats"""
     print("\nEXPORT RESULTATS")
 
@@ -207,7 +211,10 @@ def export_results(r2, mae, acc, roc_auc):
 
         f.write("ESTIMATION PRIX (HistGradientBoostingRegressor)\n")
         f.write(f"R² Test: {r2:.4f}\n")
-        f.write(f"MAE Test: {mae:.2f}€/m²\n\n")
+        f.write(f"MAE Test: {mae:.2f}€/m²\n")
+
+        f.write(importance_text)
+        f.write("\n")
 
         f.write("CLASSIFICATION (LogisticRegression)\n")
         f.write(f"Accuracy Test: {acc:.4f}\n")
@@ -217,23 +224,17 @@ def export_results(r2, mae, acc, roc_auc):
 
 
 def main():
-    print("=== ENTRAINEMENT MODELES ML - DVFGeo ===")
+    print("ENTRAINEMENT MODELES ML DVFGeo")
 
-    # 1. Charger données
     X_train, X_test, y_train, y_test, feature_names = load_data()
 
-    # 2. Modèle Principal (Boosting)
-    model_boost, r2_val, mae_val = train_model_principal(
-        X_train, X_test, y_train, y_test, feature_names
-    )
+    model_boost, r2_val, mae_val, importance_text = train_model_principal(X_train, X_test, y_train, y_test, feature_names)
 
-    # 3. Modèle Classification (Logistique)
     model_log, acc_val, roc_val = logistic_regression(
         X_train, X_test, y_train, y_test, feature_names
     )
 
-    # 4. Export final
-    export_results(r2_val, mae_val, acc_val, roc_val)
+    export_results(r2_val, mae_val, acc_val, roc_val, importance_text)
 
     print("\nfini d attendre")
 
@@ -241,27 +242,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# Train R²: 0.4668
-# Test  R²: 0.2619
-# Test MAE: 2327.65€/m²
-# Test RMSE: 3784.27€/m²
-#
-# Calcul de l'importance des features (Permutation)...
-#
-# Top 15 Features les plus importantes :
-#   longitude                : 0.3310 (±0.0028)
-#   dist_center              : 0.3268 (±0.0044)
-#   log_surface_m2           : 0.1884 (±0.0039)
-#   latitude                 : 0.1644 (±0.0030)
-#   nb_pieces_fill           : 0.0895 (±0.0014)
-#   annee_norm               : 0.0478 (±0.0028)
-#   mois_cos                 : 0.0214 (±0.0006)
-#   arrond_7                 : 0.0149 (±0.0009)
-#   mois_sin                 : 0.0094 (±0.0006)
-#   arrond_11                : 0.0048 (±0.0008)
-#   arrond_20                : 0.0044 (±0.0004)
-#   arrond_8                 : 0.0035 (±0.0003)
-#   arrond_6                 : 0.0028 (±0.0004)
-#   arrond_9                 : 0.0025 (±0.0001)
-#   arrond_18                : 0.0022 (±0.0003)
