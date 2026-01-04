@@ -18,11 +18,10 @@ from .ml_predictor import (
     get_predictor
 )
 
-# Viz builder
-from .viz_builder import (
-    load_static_plot,
-    generate_prix_m2_by_arrondissement,
-    generate_evolution_temporelle
+# Viz helper
+from .viz_helper import (
+    render_image,
+    render_html
 )
 
 __all__ = [
@@ -36,7 +35,6 @@ __all__ = [
     'get_predictor',
 
     # Viz
-    'load_static_plot',
-    'generate_prix_m2_by_arrondissement',
-    'generate_evolution_temporelle',
+    'render_image',
+    'render_html'
 ]
