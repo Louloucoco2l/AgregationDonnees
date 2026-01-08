@@ -12,7 +12,7 @@ import json
 from src.config import paths
 
 INPUT_PATH = paths.data.DVF.geocodes.tableau/ "dvfgeo_tableau_arrondissements.csv"
-GEOJSON_PATH = paths.data.arrondissement/"arrondissements.geojson"
+GEOJSON_PATH = paths.data/"arrondissements.geojson"
 OUTPUT_FILE = paths.plots.DVF/"carte_paris_heatmap.html"
 
 
@@ -28,7 +28,7 @@ def load_data(filepath):
 def load_geojson(filepath):
     """Charge GeoJSON polygonal des arrondissements"""
     print("Chargement GeoJSON arrondissements…")
-    if not filepath.isfile():
+    if not filepath.is_file():
         raise FileNotFoundError(f"GeoJSON introuvable : {filepath}")
 
     with open(filepath, "r", encoding="utf-8") as f:

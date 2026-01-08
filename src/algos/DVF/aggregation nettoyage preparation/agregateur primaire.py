@@ -1,5 +1,5 @@
 """
-    Agrégateur old_dataset géocodées depuis data.gouv.fr
+    Agrégateur géocodées depuis data.gouv.fr
     Filtre sur Paris (75) + sépare exploitable/inexploitable
 
     Source: https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees
@@ -9,15 +9,15 @@
 import pandas as pd
 from src.config import paths
 
-brut_dir = paths.data.DVF.old_dataset.brut.path
-# Fichiers old_dataset géocodés (data.gouv.fr)
+brut_dir = paths.data.DVF.geocodes.brut.path
+# Fichiers dataset géocodés (data.gouv.fr)
 fichiers = [
     brut_dir / f"{annee}_75.csv"
     for annee in range(2020, 2026)
 ]
 
 # Fichiers de sortie
-cleaned_dir = paths.data.DVF.old_dataset.cleaned.path
+cleaned_dir = paths.data.DVF.geocodes.cleaned.path
 fichier_tous = cleaned_dir / "dvf_paris_2020-2025.csv"
 fichier_exploitables = cleaned_dir / "dvf_paris_2020-2025-exploitables.csv"
 fichier_inexploitables = cleaned_dir / "dvf_paris_2020-2025-inexploitables.csv"
@@ -42,18 +42,18 @@ compteur_tous = 0
 compteur_exploitables = 0
 compteur_inexploitables = 0
 
-print("AGRÉGATION old_dataset GÉOCODÉES PARIS 2020-2025")
+print("AGRÉGATION GÉOCODÉES PARIS 2020-2025")
 
 for fichier in fichiers:
-    if not paths.exists(fichiers):
-        print(f"Fichier introuvable : {fichiers}")
+    if not fichier.exists():
+        print(f"Fichier introuvable : {fichier}")
         continue
 
-    print(f"\nTraitement de : {paths.basename(fichiers)}")
+    print(f"\nTraitement de : {fichier.name}")
 
     try:
         chunks = pd.read_csv(
-            fichiers,
+            fichier,
             sep=',',
             dtype=str,
             encoding='utf-8',
@@ -61,7 +61,7 @@ for fichier in fichiers:
             low_memory=False
         )
     except Exception as e:
-        print(f"Erreur lecture : {e}")
+        print(f"Erreur lecture {fichier.name} : {e}")
         continue
 
     for i, chunk in enumerate(chunks):
@@ -85,8 +85,8 @@ for fichier in fichiers:
         # ========== FICHIER 1 : TOUS ==========
         if len(paris_chunk) > 0:
             try:
-                mode = 'a' if fichier_tous.exists else 'w'
-                header = not fichier_tous.exists
+                mode = 'a' if fichier_tous.exists() else 'w'
+                header = not fichier_tous.exists()
                 paris_chunk.to_csv(
                     fichier_tous,
                     sep=';',
@@ -144,8 +144,8 @@ for fichier in fichiers:
         # ========== FICHIER 2 : EXPLOITABLES ==========
         if len(paris_exploitable) > 0:
             try:
-                mode = 'a' if fichier_exploitables.exists else 'w'
-                header = not fichier_exploitables.exists
+                mode = 'a' if fichier_exploitables.exists() else 'w'
+                header = not fichier_exploitables.exists()
                 paris_exploitable.to_csv(
                     fichier_exploitables,
                     sep=';',
@@ -162,8 +162,8 @@ for fichier in fichiers:
         # ========== FICHIER 3 : INEXPLOITABLES ==========
         if len(paris_inexploitable) > 0:
             try:
-                mode = 'a' if fichier_inexploitables.exists else 'w'
-                header = not fichier_inexploitables.exists
+                mode = 'a' if fichier_inexploitables.exists() else 'w'
+                header = not fichier_inexploitables.exists()
                 paris_inexploitable.to_csv(
                     fichier_inexploitables,
                     sep=';',

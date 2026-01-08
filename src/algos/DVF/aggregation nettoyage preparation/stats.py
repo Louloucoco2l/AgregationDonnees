@@ -11,7 +11,7 @@ from src.config import paths
 
 
 INPUT_PATH = paths.data.DVF.geocodes.cleaned/"dvf_paris_2020-2025-exploitables-clean.csv"
-OUTPUT_DIR = paths.data.dvf.analysis.path
+OUTPUT_DIR = paths.data.DVF.analysis.path
 
 
 def load_and_prepare(filepath):
@@ -208,7 +208,7 @@ def export_analysis(df, districts_df, types_df, temporal_df):
     print(f"analysis_temporel.csv")
 
 def main():
-    if not INPUT_PATH.isfile():
+    if not INPUT_PATH.is_file():
         print(f"Fichier introuvable: {INPUT_PATH}")
         sys.exit(1)
 

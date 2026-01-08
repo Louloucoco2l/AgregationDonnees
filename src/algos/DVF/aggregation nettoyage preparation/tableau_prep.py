@@ -253,7 +253,6 @@ def print_summary():
     print("   - Colonnes: type_local, arrondissement, lat, lon, prix_moyen, nb_transactions")
 
     print("\n4. dvfgeo_tableau_detail.csv")
-    print("   - 191K lignes (toutes les transactions)")
     print("   - Usage: Drill-down, détail complet, filtres")
     print("   - Colonnes: date, adresse, prix_m2, surface, type_local, etc")
 
@@ -270,7 +269,7 @@ def print_summary():
 
 
 def main():
-    if not INPUT_PATH.isfile():
+    if not INPUT_PATH.is_file():
         print("Erreur: Fichier introuvable: {}".format(INPUT_PATH))
         sys.exit(1)
 

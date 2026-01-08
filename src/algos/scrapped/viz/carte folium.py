@@ -11,7 +11,7 @@ import json
 
 INPUT_PATH = paths.data.scrapped/"annonces_paris_clean_final.csv"
 GEOJSON_PATH = paths.data/"arrondissements.geojson"
-OUTPUT_FILE = paths.plot.scrapped/"carte_annonces_paris.html"
+OUTPUT_FILE = paths.plots.scrapped/"carte_annonces_paris.html"
 
 
 def load_data():
