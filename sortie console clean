@@ -1,0 +1,122 @@
+C:\Users\Administrateur\.virtualenvs\.venv\Scripts\python.exe "C:\Documents\PyCharm\AgregationDonnees\src\algos\DVF\aggregation nettoyage preparation\clean.py"
+NETTOYAGE old_dataset GÉOCODÉES - FILTRAGE COMPLET (HAUT + BAS)
+Chargement: dvf_paris_2020-2025-exploitables.csv
+✓ 221797 lignes chargées
+
+✓ 4 colonnes vides supprimées
+✓ 41 colonnes conservées
+
+
+Total initial: 221797
+Après filtre Appartement & Surface: 180250
+Final (Clean): 152678
+ANALYSE DES ABERRANTES BASSES (ventes symboliques)
+
+Prix/m² des aberrantes basses:
+  Min:          0€/m²
+  Max:     28,333€/m²
+  Médiane:      7,895€/m²
+
+Valeur foncière:
+  Min:            0€
+  Max:  271,464,000€
+  Médiane:      450,000€
+
+Répartition par nature de mutation:
+  Vente                                   :  32867 ( 96.6%)
+  Echange                                 :    965 (  2.8%)
+  Vente en l'état futur d'achèvement      :    107 (  0.3%)
+  Adjudication                            :     80 (  0.2%)
+  Vente terrain à bâtir                   :     15 (  0.0%)
+  Expropriation                           :      1 (  0.0%)
+
+Répartition par type de local:
+  Local industriel. commercial ou assimilé:  16893 ( 49.6%)
+  Appartement                             :   8700 ( 25.6%)
+  Dépendance                              :   7396 ( 21.7%)
+  Maison                                  :    784 (  2.3%)
+ANALYSE DES ABERRANTES HAUTES
+
+Prix/m² des aberrantes:
+  Min:     28,340€/m²
+  Max: 95,250,000€/m²
+  Médiane:    127,100€/m²
+  Moyenne:    559,658€/m²
+
+Répartition par type de local:
+  Appartement                             :  20919 ( 59.6%)
+  Local industriel. commercial ou assimilé:   9426 ( 26.9%)
+  Dépendance                              :   4431 ( 12.6%)
+  Maison                                  :    117 (  0.3%)
+
+Répartition par arrondissement:
+  7501:    853 (  2.4%)
+  7502:   1085 (  3.1%)
+  7503:   1017 (  2.9%)
+  7504:    834 (  2.4%)
+  7505:    845 (  2.4%)
+  7506:   2139 (  6.1%)
+  7507:   1764 (  5.0%)
+  7508:   3188 (  9.1%)
+  7509:   1986 (  5.7%)
+  7510:   1628 (  4.6%)
+  7511:   2519 (  7.2%)
+  7512:   1486 (  4.2%)
+  7513:   1109 (  3.2%)
+  7514:   1328 (  3.8%)
+  7515:   2773 (  7.9%)
+  7516:   2488 (  7.1%)
+  7517:   2584 (  7.4%)
+  7518:   2461 (  7.0%)
+  7519:   1554 (  4.4%)
+  7520:   1443 (  4.1%)
+
+Top 10 adresses les plus chères:
+  12 RUE DE CASTIGLIONE - Local industriel. commercial ou assimilé
+    → 95,250,000€/m² ( 762,000,000€ /        8m²)
+  144 AV DES CHAMPS ELYSEES - Local industriel. commercial ou assimilé
+    → 86,601,471€/m² ( 606,210,300€ /        7m²)
+  144 AV DES CHAMPS ELYSEES - Local industriel. commercial ou assimilé
+    → 75,776,288€/m² ( 606,210,300€ /        8m²)
+  153 RUE DU FAUBOURG SAINT HONORE - Local industriel. commercial ou assimilé
+    → 60,700,000€/m² (  60,700,000€ /        1m²)
+  153 RUE DU FAUBOURG SAINT HONORE - Local industriel. commercial ou assimilé
+    → 60,700,000€/m² (  60,700,000€ /        1m²)
+  153 RUE DU FAUBOURG SAINT HONORE - Local industriel. commercial ou assimilé
+    → 60,700,000€/m² (  60,700,000€ /        1m²)
+  153 RUE DU FAUBOURG SAINT HONORE - Local industriel. commercial ou assimilé
+    → 60,700,000€/m² (  60,700,000€ /        1m²)
+  153 RUE DU FAUBOURG SAINT HONORE - Local industriel. commercial ou assimilé
+    → 60,700,000€/m² (  60,700,000€ /        1m²)
+  153 RUE DU FAUBOURG SAINT HONORE - Local industriel. commercial ou assimilé
+    → 60,700,000€/m² (  60,700,000€ /        1m²)
+  153 RUE DU FAUBOURG SAINT HONORE - Local industriel. commercial ou assimilé
+    → 60,700,000€/m² (  60,700,000€ /        1m²)
+ANALYSE DES DONNÉES NORMALES (FILTRÉES)
+
+Prix/m²:
+  Min:      2,000€/m²
+  Max:     28,333€/m²
+  Médiane:     10,556€/m²
+  Moyenne:     11,076€/m²
+  Écart-type:      3,705€/m²
+
+Valeur foncière:
+  Min:       20,000€
+  Max:    8,098,500€
+  Médiane:      434,698€
+
+Surface:
+  Min:          9m²
+  Max:        300m²
+  Médiane:         42m²
+EXPORT
+152678 lignes normales
+C:\Documents\PyCharm\AgregationDonnees\data\DVF\geocodes\cleaned\dvf_paris_2020-2025-exploitables-clean.csv
+35084 lignes aberrantes (hautes)
+C:\Documents\PyCharm\AgregationDonnees\data\DVF\geocodes\cleaned\dvf_paris_2020-2025-aberrantes-haute.csv
+34035 lignes aberrantes (basses)
+C:\Documents\PyCharm\AgregationDonnees\data\DVF\geocodes\cleaned\dvf_paris_2020-2025-aberrantes-basse.csv
+NETTOYAGE COMPLÉTÉ AVEC SUCCÈS
+
+Process finished with exit code 0

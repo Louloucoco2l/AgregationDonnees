@@ -1,0 +1,1 @@
+ce dossier data_for_github sert à stocker des datas de taille suffisament petites pour être acceptées par github et qui sont très utiles au lecteur à la compréhension
