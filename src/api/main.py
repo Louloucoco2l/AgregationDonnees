@@ -1,3 +1,6 @@
+"""
+Point d'entrée de l'API FastAPI pour l'estimation immobilière à Paris.
+"""
 import sys
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request

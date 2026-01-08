@@ -1,3 +1,6 @@
+"""
+Module pour gérer la base de données SQLite des logs des estimations immobilières.
+"""
 import sqlite3
 from datetime import datetime
 from src.config import paths
