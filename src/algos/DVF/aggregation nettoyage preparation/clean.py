@@ -15,7 +15,6 @@
 
 import sys
 import pandas as pd
-import numpy as np
 from src.config import paths
 
 
